@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#f8fafc">
+  <title>MIYA.EXE</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══ YUKLASH (BOOT) ══ -->
+<div class="screen active" id="boot">
+  <div class="boot-center">
+    <span class="boot-emoji">🧠</span>
+    <div class="boot-title">MIYA.EXE</div>
+    <div class="boot-sub">Miyangizni sinab ko'ring!</div>
+    <div class="boot-card">
+      <div id="boot-steps"></div>
+      <div style="margin-top:14px">
+        <div class="bar-bg"><div class="bar-fill" id="boot-fill"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOSH SAHIFA ══ -->
+<div class="screen" id="home">
+  <div class="topbar">
+    <div class="topbar-title">🧠 MIYA.EXE</div>
+    <div class="chips">
+      <div class="chip chip-xp" id="h-xp">0 XP</div>
+      <div class="chip chip-lvl" id="h-lvl">1-D</div>
+    </div>
+  </div>
+  <div class="scroll">
+
+    <!-- Hero Card -->
+    <div class="hello-card">
+      <div class="hello-top">
+        <div>
+          <div class="hello-name" id="h-name">Salom! 👋</div>
+          <div class="hello-sub" id="h-status">Bugun miyangiz tayyor!</div>
+        </div>
+        <div class="hello-avatar">🧠</div>
+      </div>
+      <div class="brain-lbl">
+        <span>Miya quvvati</span>
+        <span id="h-brain">42%</span>
+      </div>
+      <div class="brain-track">
+        <div class="brain-prog" id="h-bar" style="width:42%"></div>
+      </div>
+    </div>
+
+    <!-- Feature 2x2 Grid -->
+    <div class="grid2">
+      <div class="feat f-purple" id="c-roast">
+        <div class="feat-badge b-hot">🔥 Mashhur</div>
+        <div class="feat-em">😂</div>
+        <div class="feat-name">AI Kuldiradi</div>
+        <div class="feat-desc">AI siz haqida kulgili tahlil qiladi</div>
+      </div>
+      <div class="feat f-blue" id="c-iq">
+        <div class="feat-badge b-new">✨ Test</div>
+        <div class="feat-em">🧠</div>
+        <div class="feat-name">IQ Test</div>
+        <div class="feat-desc">Miyangiz qancha ishlaydi?</div>
+      </div>
+      <div class="feat f-green" id="c-games">
+        <div class="feat-badge b-new">🎮 5 ta</div>
+        <div class="feat-em">🎯</div>
+        <div class="feat-name">O'yinlar</div>
+        <div class="feat-desc">Ball yig'ing va daraja oling</div>
+      </div>
+      <div class="feat f-yellow" id="c-hayoyo">
+        <div class="feat-badge b-new">🧪 Yangi</div>
+        <div class="feat-em">🤔</div>
+        <div class="feat-name">Ha yoki Yo'q</div>
+        <div class="feat-desc">Ilmiy faktlar — to'g'ri yoki noto'g'ri?</div>
+      </div>
+    </div>
+
+    <!-- Daily Strip -->
+    <div class="daily-strip" id="c-daily">
+      <div class="d-pulse"></div>
+      <div class="d-texts">
+        <div class="d-title">⚡ Bugungi savol</div>
+        <div class="d-sub">Har kuni yangi • Ball yig'ing</div>
+      </div>
+      <div class="d-arrow">›</div>
+    </div>
+
+    <!-- Quick Game Pills -->
+    <div class="sec-lbl">TEZKOR O'YINLAR</div>
+    <div class="pills-row">
+      <div class="pill" onclick="openGame('reflex')">
+        <span class="pill-em">⚡</span><span class="pill-txt">Reflex</span>
+      </div>
+      <div class="pill" onclick="openGame('memory')">
+        <span class="pill-em">🧩</span><span class="pill-txt">Xotira</span>
+      </div>
+      <div class="pill" onclick="openGame('roulette')">
+        <span class="pill-em">🎰</span><span class="pill-txt">Ruletka</span>
+      </div>
+      <div class="pill" onclick="openGame('math')">
+        <span class="pill-em">🔢</span><span class="pill-txt">Hisob</span>
+      </div>
+      <div class="pill" onclick="openGame('npc')">
+        <span class="pill-em">🤖</span><span class="pill-txt">NPC?</span>
+      </div>
+      <div class="pill" onclick="openGame('hayoyo')">
+        <span class="pill-em">🤔</span><span class="pill-txt">Ha/Yo'q</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ ROAST SAHIFASI ══ -->
+<div class="screen" id="roast">
+  <div class="topbar">
+    <div class="topbar-title">😂 AI Kuldiradi</div>
+    <div class="chip chip-xp">+20 ball</div>
+  </div>
+  <div class="scroll">
+    <div class="roast-hero" id="roast-idle">
+      <div class="roast-hero-em">🤖</div>
+      <div class="roast-hero-txt">
+        AI siz haqingizda <strong>kulgili va haqiqiy</strong> tahlil qiladi.<br>
+        Ko'pchilik o'zini tanib, do'stiga yuboradi 😄
+      </div>
+    </div>
+    <div style="padding:0 16px">
+      <button class="btn btn-purple" id="roast-btn">😂 Meni tahlil qilsin!</button>
+    </div>
+    <div class="loading-card" id="roast-load">
+      <div class="loading-txt">🔍 <span id="load-txt">Tahlil qilinmoqda...</span></div>
+      <div class="l-dots">
+        <div class="l-dot"></div>
+        <div class="l-dot"></div>
+        <div class="l-dot"></div>
+      </div>
+    </div>
+    <div class="result-box" id="roast-res">
+      <div class="result-label">🎯 Tahlil natijasi</div>
+      <div class="result-text" id="roast-text"></div>
+      <div class="fact-box"><p id="roast-fact"></p></div>
+      <button class="share-btn" id="roast-share">📤 Do'stingga yubor</button>
+    </div>
+    <div class="hist-wrap">
+      <div class="hist-lbl" style="margin-top:8px">Oldingi tahlillar</div>
+      <div id="roast-hist"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ IQ TEST ══ -->
+<div class="screen" id="iq">
+  <div class="topbar">
+    <div class="topbar-title">🧠 IQ Test</div>
+    <div class="chip chip-xp">+30 ball</div>
+  </div>
+  <div class="scroll">
+
+    <!-- Start Screen -->
+    <div id="iq-start">
+      <div class="iq-hero">
+        <div class="iq-big" id="iq-prev">?</div>
+        <div class="iq-lbl">SIZNING BALL</div>
+      </div>
+      <div class="iq-about">
+        Bu testdan <strong>97% odam yiqilgan</strong>.<br>
+        5 ta savol. Birinchi instinktingizga isoning.<br><br>
+        Natija "haqiqiy emas" — lekin miyangizni ishlatadi 😄
+      </div>
+      <div style="padding:0 16px">
+        <button class="btn btn-purple" id="iq-start-btn">🧠 Testni boshlash</button>
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div class="q-wrap" id="iq-questions">
+      <div class="q-progress">
+        <div class="q-prog-fill" id="iq-prog" style="width:0%"></div>
+      </div>
+      <div class="q-count" id="iq-qnum">1 / 5 savol</div>
+      <div class="q-text"  id="iq-qtext"></div>
+      <div class="q-opts"  id="iq-opts"></div>
+    </div>
+
+    <!-- Result -->
+    <div class="iq-res" id="iq-result">
+      <div class="iq-big" id="iq-score">0</div>
+      <div class="iq-lbl">BALL</div>
+      <div class="iq-res-tag"  id="iq-tag"></div>
+      <div class="iq-res-desc" id="iq-desc"></div>
+      <div class="iq-fact-box" id="iq-fact"></div>
+      <div style="padding:0 16px">
+        <button class="btn btn-outline" id="iq-retake">↩ Qaytadan urinish</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ BUGUNGI SAVOL ══ -->
+<div class="screen" id="daily">
+  <div class="topbar">
+    <div class="topbar-title">⚡ Bugungi savol</div>
+    <div class="chip chip-xp" id="d-xp-chip">+25 ball</div>
+  </div>
+  <div class="scroll">
+    <div class="daily-card">
+      <div class="d-type"     id="d-type">YUKLANMOQDA</div>
+      <div class="d-question" id="d-q">...</div>
+      <div class="d-opts"     id="d-opts"></div>
+    </div>
+    <div class="fact-reveal" id="d-fact">
+      <div class="fr-label">💡 Bilasizmi?</div>
+      <div class="fr-text" id="d-fact-text"></div>
+    </div>
+    <div class="streak-box">
+      <div class="streak-em">🔥</div>
+      <div class="streak-info">
+        <div class="streak-num"  id="streak-val">0</div>
+        <div class="streak-lbl">Kunlik ketma-ketlik</div>
+      </div>
+      <div class="streak-note" id="streak-note">Har kuni javob bering!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ O'YINLAR ══ -->
+<div class="screen" id="games">
+  <div class="topbar">
+    <div class="topbar-title">🎮 O'yinlar</div>
+    <div class="chip chip-xp">Ball yig'ing</div>
+  </div>
+  <div class="scroll">
+    <div class="sec-title">Qaysi o'yinni o'ynaysiz?</div>
+    <div class="sec-sub">Har o'yin uchun ball va badge yig'asiz</div>
+    <div class="games-grid">
+
+      <div class="game-card" onclick="openGame('reflex')">
+        <div class="gc-xp">+15 ball</div>
+        <div class="gc-em">⚡</div>
+        <div class="gc-nm">Reflex testi</div>
+        <div class="gc-ds">Yashil bo'lganda — bos! Vaqtingiz o'lchanadi</div>
+        <div class="gc-bar purple"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('memory')">
+        <div class="gc-xp">+20 ball</div>
+        <div class="gc-em">🧩</div>
+        <div class="gc-nm">Xotira o'yini</div>
+        <div class="gc-ds">Yongan katakchalarni eslab qoling</div>
+        <div class="gc-bar blue"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('roulette')">
+        <div class="gc-xp">+10 ball</div>
+        <div class="gc-em">🎰</div>
+        <div class="gc-nm">Baxt g'ildiragi</div>
+        <div class="gc-ds">Aylantiring — nima chiqishini bilmaysiz!</div>
+        <div class="gc-bar yellow"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('math')">
+        <div class="gc-xp">+25 ball</div>
+        <div class="gc-em">🔢</div>
+        <div class="gc-nm">Tez hisob</div>
+        <div class="gc-ds">10 ta misol — 3 soniya. Uddalay olasizmi?</div>
+        <div class="gc-bar green"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('npc')">
+        <div class="gc-xp">+20 ball</div>
+        <div class="gc-em">🤖</div>
+        <div class="gc-nm">NPC testmi?</div>
+        <div class="gc-ds">Siz "robot kabi" yashayapsizmi? Tekshiring</div>
+        <div class="gc-bar red"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('hayoyo')">
+        <div class="gc-xp">+20 ball</div>
+        <div class="gc-em">🤔</div>
+        <div class="gc-nm">Ha yoki Yo'q</div>
+        <div class="gc-ds">Psixologiya faktlari — to'g'ri yoki noto'g'ri?</div>
+        <div class="gc-bar teal"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ REYTING ══ -->
+<div class="screen" id="rating">
+  <div class="topbar">
+    <div class="topbar-title">🏆 Reyting</div>
+    <div class="chip chip-xp" id="rating-total-chip">? o'yinchi</div>
+  </div>
+  <div class="scroll">
+    <div class="rating-hero">
+      <div class="rating-hero-title">🌍 Jami o'yinchilar reytingi</div>
+      <div class="rating-hero-sub">Eng ko'p ball to'plagan o'yinchilar</div>
+    </div>
+    <div class="my-rank-card">
+      <div class="my-rank-num"  id="my-rank-num">#?</div>
+      <div class="my-rank-info">
+        <div class="my-rank-name" id="my-rank-name">Siz</div>
+        <div class="my-rank-xp"   id="my-rank-xp">0 XP</div>
+      </div>
+      <div class="my-rank-badge">👤</div>
+    </div>
+    <div class="hist-lbl" style="margin:0 16px 8px">TOP O'YINCHILAR</div>
+    <div class="leader-list" id="leader-list"></div>
+  </div>
+</div>
+
+<!-- ══ PROFIL ══ -->
+<div class="screen" id="profile">
+  <div class="topbar">
+    <div class="topbar-title">👤 Mening sahifam</div>
+  </div>
+  <div class="scroll">
+    <div class="p-hero">
+      <div class="p-avatar">🧠</div>
+      <div class="p-name"  id="p-name">Siz</div>
+      <div class="p-title" id="p-title">1-Daraja • Yangi boshlovchi</div>
+    </div>
+    <div class="p-xp-card">
+      <div class="p-xp-row">
+        <span>Ball: <strong id="p-xp">0</strong></span>
+        <span>Keyingi daraja: <strong id="p-xpmax">100</strong></span>
+      </div>
+      <div class="bar-bg" style="height:8px">
+        <div class="bar-fill" id="p-bar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="stats3">
+      <div class="stat-box"><div class="stat-n" id="s-roast">0</div><div class="stat-l">😂 Tahlil</div></div>
+      <div class="stat-box"><div class="stat-n" id="s-iq">—</div><div class="stat-l">🧠 IQ ball</div></div>
+      <div class="stat-box"><div class="stat-n" id="s-streak">0</div><div class="stat-l">🔥 Ketma-ket</div></div>
+    </div>
+    <div class="hist-lbl" style="margin:0 16px 8px">🏅 Sovrinlar</div>
+    <div class="badges-wrap" id="badges-wrap"></div>
+    <hr class="div">
+    <div class="secret-lbl">🔮 Yashirin kod (kanalda topasiz)</div>
+    <div class="secret-row">
+      <input class="secret-inp" id="secret-inp" type="text" placeholder="Kodni kiriting" maxlength="12">
+      <button class="secret-go" id="secret-go">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+  <button class="nb active" data-sc="home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      <polyline points="9,22 9,12 15,12 15,22"/>
+    </svg>
+    Bosh
+  </button>
+  <button class="nb" data-sc="roast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
+      <line x1="9" y1="9" x2="9.01" y2="9"/>
+      <line x1="15" y1="9" x2="15.01" y2="9"/>
+    </svg>
+    Kuldiradi
+  </button>
+  <button class="nb" data-sc="iq">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2a7 7 0 017 7c0 2.5-1.5 4.5-3 6l-1 5H9l-1-5c-1.5-1.5-3-3.5-3-6a7 7 0 017-7z"/>
+      <line x1="9" y1="21" x2="15" y2="21"/>
+    </svg>
+    IQ
+  </button>
+  <button class="nb" data-sc="games">
+    <div class="nb-dot"></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="2" y="6" width="20" height="12" rx="2"/>
+      <path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/>
+    </svg>
+    O'yinlar
+  </button>
+  <button class="nb" data-sc="rating">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+    </svg>
+    Reyting
+  </button>
+  <button class="nb" data-sc="daily">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="4" width="18" height="18" rx="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+    Bugungi
+  </button>
+  <button class="nb" data-sc="profile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    Profil
+  </button>
+</nav>
+
+<!-- ══════════ MODAL O'YINLAR ══════════ -->
+
+<!-- REFLEX MODAL -->
+<div class="modal" id="modal-reflex">
+  <div class="modal-header">
+    <div class="modal-title">⚡ Reflex testi</div>
+    <button class="modal-close" onclick="closeGame('reflex')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub" id="reflex-sub">Yashil bo'lganda — darhol bosing!</div>
+    <div class="reflex-circle" id="reflex-circle">Tayyor bo'ling</div>
+    <div style="display:none;text-align:center" id="reflex-res">
+      <div class="reflex-ms"      id="reflex-ms"></div>
+      <div class="reflex-verdict" id="reflex-verdict"></div>
+    </div>
+    <button class="btn btn-purple" id="reflex-btn">⚡ Boshlash</button>
+  </div>
+</div>
+
+<!-- MEMORY MODAL -->
+<div class="modal" id="modal-memory">
+  <div class="modal-header">
+    <div class="modal-title">🧩 Xotira o'yini</div>
+    <button class="modal-close" onclick="closeGame('memory')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub" id="mem-sub">Yongan katakchalarni eslab qoling</div>
+    <div style="font-size:18px;font-weight:800;color:var(--purple);text-align:center;margin-bottom:6px" id="mem-lvl">1-Daraja</div>
+    <div class="mem-grid" id="mem-grid"></div>
+    <button class="btn btn-purple" id="mem-btn">🧩 Boshlash</button>
+  </div>
+</div>
+
+<!-- ROULETTE MODAL -->
+<div class="modal" id="modal-roulette">
+  <div class="modal-header">
+    <div class="modal-title">🎰 Baxt g'ildiragi</div>
+    <button class="modal-close" onclick="closeGame('roulette')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub">Aylantiring — nima chiqishini bilmaysiz!</div>
+    <div class="roulette-wheel" id="roulette-wheel">🎰</div>
+    <div class="roulette-res" id="roulette-res">
+      <div class="rr-em"    id="rr-em"></div>
+      <div class="rr-title" id="rr-title"></div>
+      <div class="rr-text"  id="rr-text"></div>
+    </div>
+    <button class="btn btn-purple" id="roulette-btn">🎰 Aylantirish</button>
+  </div>
+</div>
+
+<!-- MATH MODAL -->
+<div class="modal" id="modal-math">
+  <div class="modal-header">
+    <div class="modal-title" id="math-title">🔢 Tez hisob</div>
+    <button class="modal-close" onclick="closeGame('math')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub" id="math-sub">10 ta misol • 3 soniya har biriga</div>
+    <div class="math-timer-wrap">
+      <div class="math-timer-fill" id="math-timer" style="width:100%"></div>
+    </div>
+    <div class="math-expr" id="math-expr">?</div>
+    <div class="math-opts" id="math-opts"></div>
+    <div id="math-result" style="display:none;text-align:center;width:100%">
+      <div class="math-score-big" id="math-score">0</div>
+      <div style="font-size:16px;color:var(--text2);font-weight:600;margin-bottom:12px" id="math-verdict"></div>
+      <button class="btn btn-outline" id="math-retry">↩ Qaytadan</button>
+    </div>
+    <button class="btn btn-purple" id="math-btn">🔢 Boshlash</button>
+  </div>
+</div>
+
+<!-- NPC MODAL -->
+<div class="modal" id="modal-npc">
+  <div class="modal-header">
+    <div class="modal-title">🤖 NPC testmi?</div>
+    <button class="modal-close" onclick="closeGame('npc')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div style="font-size:44px;text-align:center;margin:10px 0" id="npc-em">🤖</div>
+    <div class="npc-intro-txt" id="npc-intro">
+      Ko'p odamlar <strong>"robot kabi"</strong> hayot kechiradi —<br>
+      boshqalar aytganini qiladi, o'z fikri yo'q.<br><br>
+      Siz haqiqiy odammisiz yoki NPC?
+    </div>
+    <div style="display:none;width:100%" id="npc-q-wrap">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px;font-weight:700" id="npc-num">1/5 savol</div>
+      <div class="q-text" id="npc-q"></div>
+      <div class="q-opts" id="npc-opts"></div>
+    </div>
+    <div style="display:none;text-align:center;width:100%" id="npc-result">
+      <div style="font-size:52px;margin-bottom:12px" id="npc-res-em"></div>
+      <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px" id="npc-res-title"></div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.8" id="npc-res-desc"></div>
+    </div>
+    <button class="btn btn-purple" id="npc-btn">🤖 Tekshirish</button>
+  </div>
+</div>
+
+<!-- HA/YO'Q MODAL -->
+<div class="modal" id="modal-hayoyo">
+  <div class="modal-header">
+    <div class="modal-title">🤔 Ha yoki Yo'q</div>
+    <button class="modal-close" onclick="closeGame('hayoyo')">✕</button>
+  </div>
+  <div class="modal-box" id="hayoyo-body">
+
+    <!-- Playing state -->
+    <div id="hayoyo-play">
+      <div class="hayoyo-progress-row">
+        <span id="hayoyo-qnum">1 / 10</span>
+        <span id="hayoyo-score-live">0 ✓</span>
+      </div>
+      <!-- Progress bar -->
+      <div class="bar-bg" style="margin-bottom:16px">
+        <div class="bar-fill" id="hayoyo-prog" style="width:0%"></div>
+      </div>
+
+      <div class="hayoyo-fact-card">
+        <div class="hayoyo-fact-emoji" id="hayoyo-emoji">🧠</div>
+        <div class="hayoyo-fact-text"  id="hayoyo-text">Yuklanmoqda...</div>
+      </div>
+
+      <div class="hayoyo-feedback neutral" id="hayoyo-feedback">
+        Javob bering...
+      </div>
+
+      <div class="hayoyo-buttons">
+        <button class="hayoyo-btn ha-btn"  id="hayoyo-ha"  onclick="hayoyoJavob(true)">
+          ✅ HA
+          <span>To'g'ri</span>
+        </button>
+        <button class="hayoyo-btn yoq-btn" id="hayoyo-yoq" onclick="hayoyoJavob(false)">
+          ❌ YO'Q
+          <span>Noto'g'ri</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Result state -->
+    <div id="hayoyo-result" style="display:none">
+      <div class="hayoyo-result">
+        <div style="font-size:56px;margin-bottom:12px" id="hayoyo-res-emoji">🎉</div>
+        <div class="hayoyo-score-big" id="hayoyo-final-score">0/10</div>
+        <div class="hayoyo-verdict"     id="hayoyo-verdict"></div>
+        <div class="hayoyo-verdict-sub" id="hayoyo-verdict-sub"></div>
+        <div style="margin-top:24px;width:100%">
+          <button class="btn btn-purple" onclick="hayoyoReset()">↩ Qaytadan</button>
+          <button class="btn btn-outline" onclick="closeGame('hayoyo')" style="margin-top:0">Yopish</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/firebase.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    background: #050510;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(124,58,237,0.2) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba(236,72,153,0.15) 0%, transparent 50%);
+  }
+
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.06) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  .center { position: relative; z-index: 2; text-align: center; padding: 0 60px; }
+
+  .live-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: #10b981;
+    font-size: 14px; font-weight: 700; letter-spacing: 3px;
+    padding: 10px 24px; border-radius: 100px;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+  }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: livePulse 1.5s infinite;
+  }
+  @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .title {
+    font-size: 100px; font-weight: 900;
+    color: #fff; letter-spacing: -4px;
+    line-height: 0.95; margin-bottom: 12px;
+  }
+  .title .purple {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .title .pink {
+    background: linear-gradient(135deg, #ec4899, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .exe { font-size: 60px; color: rgba(255,255,255,0.15); font-weight: 900; letter-spacing: -2px; margin-bottom: 30px; }
+
+  .tagline {
+    font-size: 22px; color: rgba(255,255,255,0.5);
+    line-height: 1.6; margin-bottom: 50px;
+  }
+
+  .stats {
+    display: flex; gap: 40px; justify-content: center;
+    margin-bottom: 50px;
+  }
+  .stat { text-align: center; }
+  .stat-n {
+    font-size: 42px; font-weight: 900;
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .stat-l {
+    font-size: 13px; color: rgba(255,255,255,0.3);
+    font-weight: 600; margin-top: 4px; letter-spacing: 1px;
+  }
+
+  .btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+    color: #fff; font-size: 20px; font-weight: 800;
+    padding: 20px 60px; border-radius: 100px;
+    letter-spacing: 1px;
+    box-shadow: 0 20px 60px rgba(124,58,237,0.4);
+  }
+
+  .corner {
+    position: absolute;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.12);
+    text-transform: uppercase;
+  }
+  .tl { top: 40px; left: 50px; }
+  .tr { top: 40px; right: 50px; }
+  .bl { bottom: 40px; left: 50px; }
+  .br { bottom: 40px; right: 50px; color: rgba(124,58,237,0.5); }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+
+  <div class="corner tl">@myprojectuz1</div>
+  <div class="corner tr">LAUNCH DAY</div>
+  <div class="corner bl">@djuraeef_v</div>
+  <div class="corner br">ISHGA TUSHDI ◈</div>
+
+  <div class="center">
+    <div class="live-tag"><div class="live-dot"></div>LIVE</div>
+    <div class="title">
+      <span class="purple">MIYA</span><span class="pink">.</span>EXE
+    </div>
+    <div class="exe">— ishga tushdi —</div>
+    <div class="tagline">
+      AI tahlil • IQ test • Mini o'yinlar<br>
+      Psixologiya • Reyting
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n">5+</div><div class="stat-l">O'YIN</div></div>
+      <div class="stat"><div class="stat-n">∞</div><div class="stat-l">KULGILI</div></div>
+      <div class="stat"><div class="stat-n">0₽</div><div class="stat-l">BEPUL</div></div>
+    </div>
+    <div class="btn">t.me/myprojectuz1</div>
+  </div>
+</body>
+</html>

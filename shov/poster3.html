@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1080px;height:1080px;overflow:hidden;}
+  body{background:#06060e;font-family:'Inter',sans-serif;position:relative;}
+
+  /* Central glow */
+  .glow{
+    position:absolute;
+    width:800px;height:800px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(109,40,217,0.3) 0%,rgba(236,72,153,0.1) 40%,transparent 70%);
+    top:50%;left:50%;transform:translate(-50%,-50%);
+  }
+
+  /* Circles */
+  .ring{position:absolute;border-radius:50%;border:1px solid;}
+  .r1{width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%);border-color:rgba(109,40,217,0.15);}
+  .r2{width:700px;height:700px;top:50%;left:50%;transform:translate(-50%,-50%);border-color:rgba(109,40,217,0.08);}
+  .r3{width:940px;height:940px;top:50%;left:50%;transform:translate(-50%,-50%);border-color:rgba(109,40,217,0.04);}
+
+  .wrap{position:relative;z-index:10;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px;}
+
+  .tag{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(109,40,217,0.12);
+    border:1px solid rgba(109,40,217,0.3);
+    color:#a78bfa;font-size:12px;font-weight:700;letter-spacing:4px;
+    padding:9px 22px;border-radius:100px;margin-bottom:50px;
+    text-transform:uppercase;
+  }
+
+  .big-num{
+    font-size:260px;font-weight:900;
+    background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,0.05) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    line-height:0.85;letter-spacing:-10px;
+    margin-bottom:10px;
+  }
+  .percent-sign{
+    font-size:100px;font-weight:900;
+    background:linear-gradient(135deg,#7c3aed,#ec4899);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    vertical-align:top;margin-top:40px;
+  }
+
+  .divider{
+    width:80px;height:2px;margin:0 auto 28px;
+    background:linear-gradient(90deg,transparent,rgba(167,139,250,0.5),transparent);
+  }
+
+  .stat-text{
+    font-size:32px;font-weight:700;
+    color:rgba(255,255,255,0.85);letter-spacing:-0.5px;
+    margin-bottom:12px;
+  }
+  .stat-sub{
+    font-size:18px;color:rgba(255,255,255,0.3);
+    font-weight:400;line-height:1.6;margin-bottom:60px;
+  }
+  .stat-sub b{color:rgba(255,255,255,0.55);font-weight:600;}
+
+  .channel-tag{
+    font-size:20px;font-weight:800;
+    color:rgba(255,255,255,0.5);letter-spacing:1px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .channel-tag::before,.channel-tag::after{
+    content:'';flex:1;height:1px;max-width:80px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1));
+  }
+  .channel-tag::after{background:linear-gradient(270deg,transparent,rgba(255,255,255,0.1));}
+
+  /* corners */
+  .c{position:absolute;font-size:12px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.1);text-transform:uppercase;}
+  .tl{top:44px;left:56px;}
+  .br{bottom:44px;right:56px;color:rgba(109,40,217,0.4);}
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="ring r1"></div>
+  <div class="ring r2"></div>
+  <div class="ring r3"></div>
+  <div class="c tl">MIYA.EXE — 03</div>
+  <div class="c br">@myprojectuz1</div>
+
+  <div class="wrap">
+    <div class="tag">⚠ Haqiqat</div>
+    <div style="line-height:1">
+      <span class="big-num">97</span><span class="percent-sign">%</span>
+    </div>
+    <div class="divider"></div>
+    <div class="stat-text">odam bu testdan yiqilgan.</div>
+    <div class="stat-sub">
+      Siz o'sha <b>3% danmisiz?</b><br>
+      Tez kunda bilib olasiz.
+    </div>
+    <div class="channel-tag">@myprojectuz1</div>
+  </div>
+</body>
+</html>

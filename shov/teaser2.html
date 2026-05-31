@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    background: #080510;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(236,72,153,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(124,58,237,0.12) 0%, transparent 60%);
+  }
+
+  .lines {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg, transparent, transparent 39px,
+      rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px
+    );
+  }
+
+  .center { position: relative; z-index: 2; text-align: center; padding: 0 80px; }
+
+  .emoji-row {
+    display: flex; gap: 20px; justify-content: center;
+    font-size: 40px; margin-bottom: 50px;
+    filter: grayscale(0.3);
+  }
+
+  .title {
+    font-size: 88px; font-weight: 900;
+    background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.4));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -3px; line-height: 1;
+    margin-bottom: 30px;
+  }
+
+  .title .accent {
+    background: linear-gradient(135deg, #7c3aed, #ec4899, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .desc {
+    font-size: 24px; color: rgba(255,255,255,0.5);
+    line-height: 1.7; margin-bottom: 60px;
+    font-weight: 400;
+  }
+
+  .features {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  }
+  .feat {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.6);
+    font-size: 14px; font-weight: 600;
+    padding: 10px 20px; border-radius: 100px;
+    letter-spacing: 1px;
+  }
+
+  .corner {
+    position: absolute;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.12);
+    text-transform: uppercase;
+  }
+  .tl { top: 40px; left: 50px; }
+  .tr { top: 40px; right: 50px; }
+  .bl { bottom: 40px; left: 50px; }
+  .br { bottom: 40px; right: 50px; color: rgba(124,58,237,0.5); }
+</style>
+</head>
+<body>
+  <div class="lines"></div>
+
+  <div class="corner tl">MIYA.EXE</div>
+  <div class="corner tr">TEASER №2</div>
+  <div class="corner bl">@myprojectuz1</div>
+  <div class="corner br">SOON ◈</div>
+
+  <div class="center">
+    <div class="emoji-row">😂 🧠 ⚡ 🎯 🤔</div>
+    <div class="title">
+      Bu oddiy<br><span class="accent">bot emas.</span>
+    </div>
+    <div class="desc">
+      U siz haqingizda<br>o'zingizdan ko'proq biladi.
+    </div>
+    <div class="features">
+      <div class="feat">AI Tahlil</div>
+      <div class="feat">IQ Test</div>
+      <div class="feat">Mini O'yinlar</div>
+      <div class="feat">Psixologiya</div>
+      <div class="feat">Reyting</div>
+    </div>
+  </div>
+</body>
+</html>

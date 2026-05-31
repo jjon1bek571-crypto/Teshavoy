@@ -1,0 +1,25 @@
+# Maxfiy ma'lumotlar
+bot/secret.py
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+backend/miya.db
+*.db
+
+# Node
+node_modules/
+shov/node_modules/
+package-lock.json
+shov/package-lock.json
+
+# Vercel
+.vercel
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini

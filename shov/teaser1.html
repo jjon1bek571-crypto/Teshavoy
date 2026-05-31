@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    background: #0a0a0f;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.08) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Glow */
+  .glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .center { position: relative; text-align: center; z-index: 2; }
+
+  .tag {
+    display: inline-block;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.4);
+    color: #a78bfa;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 4px;
+    padding: 8px 20px; border-radius: 100px;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+  }
+
+  .question {
+    font-size: 72px; font-weight: 900;
+    color: #fff; line-height: 1.1;
+    margin-bottom: 24px;
+    letter-spacing: -2px;
+  }
+
+  .question span {
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .sub {
+    font-size: 22px; color: rgba(255,255,255,0.4);
+    font-weight: 400; margin-bottom: 60px;
+    line-height: 1.6;
+  }
+
+  .coming {
+    font-size: 16px; font-weight: 700;
+    letter-spacing: 6px;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+  }
+
+  .dots {
+    display: flex; gap: 10px;
+    justify-content: center;
+    margin-top: 50px;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(124,58,237,0.3);
+  }
+  .dot.active { background: #7c3aed; }
+
+  .corner {
+    position: absolute;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.15);
+    text-transform: uppercase;
+  }
+  .tl { top: 40px; left: 50px; }
+  .tr { top: 40px; right: 50px; }
+  .bl { bottom: 40px; left: 50px; }
+  .br { bottom: 40px; right: 50px; color: rgba(124,58,237,0.5); }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+
+  <div class="corner tl">MIYA.EXE</div>
+  <div class="corner tr">TEASЕР №1</div>
+  <div class="corner bl">@myprojectuz1</div>
+  <div class="corner br">SOON ◈</div>
+
+  <div class="center">
+    <div class="tag">⚠ Diqqat</div>
+    <div class="question">
+      Miyangiz<br>qancha<br><span>ishlaydi?</span>
+    </div>
+    <div class="sub">
+      Hech kim sizga bu haqiqatni<br>aytmagan.
+    </div>
+    <div class="coming">Tez kunda</div>
+    <div class="dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</body>
+</html>

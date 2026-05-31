@@ -1,0 +1,86 @@
+═══════════════════════════════════════════════════
+   MIYA.EXE — Loyiha qo'llanmasi
+═══════════════════════════════════════════════════
+
+📁 FAYL STRUKTURA:
+   miya-exe/
+   ├── miniapp/           ← Telegram Mini App (HTML/CSS/JS)
+   │   ├── index.html
+   │   ├── css/style.css
+   │   └── js/app.js
+   ├── backend/           ← Server (Python FastAPI)
+   │   ├── main.py
+   │   ├── requirements.txt
+   │   └── start.bat
+   └── bot/               ← Telegram Bot (Python aiogram)
+       ├── main.py
+       └── requirements.txt
+
+═══════════════════════════════════════════════════
+   1. MINI APP ni BRAUZERDA ko'rish (test)
+═══════════════════════════════════════════════════
+
+   miniapp/index.html faylini ikki marta bosing.
+   Chrome yoki Edge da ochiladi.
+   (Telegram funksiyalari ishlamaydi — bu normal)
+
+═══════════════════════════════════════════════════
+   2. BOT YARATISH
+═══════════════════════════════════════════════════
+
+   1. Telegram da @BotFather ga yozing
+   2. /newbot buyrug'ini yuboring
+   3. Bot nomini kiriting (masalan: miya_exe_bot)
+   4. Token oling (shunday ko'rinadi: 1234567890:ABC...)
+   5. bot/main.py faylida BOT_TOKEN ni o'zgartiring
+
+═══════════════════════════════════════════════════
+   3. MINI APP ni DEPLOY qilish (Vercel — BEPUL)
+═══════════════════════════════════════════════════
+
+   1. vercel.com ga kiring (GitHub bilan)
+   2. "Add New Project" bosing
+   3. miniapp/ papkasini yuklang
+   4. Deploy qiling
+   5. URL oling (masalan: miya-exe.vercel.app)
+   6. bot/main.py va miniapp/js/app.js da URL ni o'zgartiring
+
+═══════════════════════════════════════════════════
+   4. REYTING TIZIMI — hech narsa qilish shart emas
+═══════════════════════════════════════════════════
+
+   Reyting avtomatik ishlaydi:
+   - Haqiqiy foydalanuvchilar (siz o'ynaganlar) ko'rinadi
+   - Har kuni yangilanadigan Uzbek ismli o'yinchilar
+   - Hech qanday server, hech qanday signup kerak emas
+
+   Bu qurilmangizda saqlanadi va to'liq ishlaydi.
+
+═══════════════════════════════════════════════════
+   5. BOT ni ishga tushirish
+═══════════════════════════════════════════════════
+
+   1. Python o'rnating: python.org
+   2. Terminalni oching, bot/ papkasiga boring
+   3. pip install -r requirements.txt
+   4. python main.py
+
+═══════════════════════════════════════════════════
+   6. BOT GA MINI APP ulash
+═══════════════════════════════════════════════════
+
+   @BotFather da:
+   /mybots → botingizni tanlang → Bot Settings →
+   Menu Button → Configure menu button →
+   URL kiriting (Vercel URL)
+
+═══════════════════════════════════════════════════
+   YASHIRIN KODLAR (kanalda e'lon qiling):
+═══════════════════════════════════════════════════
+   MIYA2025  — +50 XP sovrin
+   GLITCH    — +50 XP sovrin
+   NPC404    — +50 XP sovrin
+   CHAOS     — +50 XP sovrin
+
+═══════════════════════════════════════════════════
+
