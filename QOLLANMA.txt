@@ -84,6 +84,7 @@
    /mybots → botingizni tanlang → Bot Settings →
    Menu Button → Configure menu button →
    URL kiriting (Vercel URL)
+   
 
 ═══════════════════════════════════════════════════
    YASHIRIN KODLAR (kanalda e'lon qiling):
