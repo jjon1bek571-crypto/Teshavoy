@@ -76,9 +76,23 @@ quyidagi qadamlarni bajaring (bir marta):
 - Reytingga yozish faqat **server orqali**: Telegram `initData` HMAC bilan
   tekshiriladi, kvdb maxfiy kaliti faqat serverda. Tashqaridan reytingni
   o'chirib/buzib bo'lmaydi.
-- **Eslatma:** ballar mijozda hisoblanadi, server ularni cheklaydi (absurd
-  qiymat/sakrashlarni rad etadi) lekin to'liq cheat-proof emas — buning uchun
-  ballarni serverda hisoblash kerak bo'ladi (kelajakdagi yaxshilanish).
+- **Anti-cheat:** ballar mijozda hisoblanadi, lekin server himoyalaydi:
+  - Soatlik XP cheklovi (`HOURLY_CAP`) — skript/instant shishirishni to'xtatadi
+  - Bitta so'rov backstop (`MAX_DELTA`) + kamayishga yo'l yo'q
+  - Shubhali sakrashlar (`SUSPECT_DELTA`) `flags` bilan belgilanadi (bloklamaydi)
+  - **To'liq cheat-proof emas** — shuning uchun g'olib sovg'a oldidan qo'lda
+    tekshiriladi (pastga qarang).
+
+## 🏆 Mavsum / Sovg'a / G'olibni tekshirish
+
+- Reyting **oylik mavsumlarga** bo'lingan (Toshkent vaqti). `s:<oy>:<id>` —
+  mavsum, `u:<id>` — barcha vaqt. Mavsum har oy 0 dan boshlanadi.
+- **G'olibni tekshirish** (sovg'a oldidan flags'ni ko'rish):
+  ```
+  https://<APP_URL>/api/admin?key=<KVDB_SECRET>&season=YYYY-MM
+  ```
+  `flags > 0` bo'lsa — o'sha o'yinchini qo'lda ko'zdan kechiring. `key` =
+  `KVDB_SECRET` (faqat sizda).
 
 ---
 Made with 🧠 by [@djuraeef_v](https://instagram.com/djuraeef_v)
