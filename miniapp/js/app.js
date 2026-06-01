@@ -201,6 +201,31 @@ function getQuests() {
 }
 function saveQuests(q) { ls.set('quests', JSON.stringify(q)); }
 
+/* ── Har o'yinga KUNLIK XP limiti (farm/grindga qarshi) ──
+   O'yin baribir o'ynaladi, lekin limitdan oshgan XP berilmaydi.
+   Omad/spam o'yinlari tor, mahorat o'yinlari saxiy. */
+const GAME_DAILY_CAP = {
+  reflex: 300, memory: 300, math: 300, stroop: 300, find: 300, target: 300,
+  hayoyo: 80, tap: 24, npc: 5, ruletka: 6,
+};
+function gameDayState() {
+  let s = null;
+  try { s = JSON.parse(ls.get('gxpday') || 'null'); } catch {}
+  const today = new Date().toDateString();
+  if (!s || s.day !== today) { s = { day: today, earned: {} }; ls.set('gxpday', JSON.stringify(s)); }
+  return s;
+}
+/* Kunlik limitni hisobga olib, beriladigan XP'ni qaytaradi (va sarflanganini yozadi).
+   addXP'ni chaqirmaydi — chaqiruvchi addXP(capGame(...)) qiladi. */
+function capGame(key, amount) {
+  const s = gameDayState();
+  const cap = (GAME_DAILY_CAP[key] != null) ? GAME_DAILY_CAP[key] : 60;
+  const used = s.earned[key] || 0;
+  const give = Math.max(0, Math.min(Math.round(amount), cap - used));
+  if (give > 0) { s.earned[key] = used + give; ls.set('gxpday', JSON.stringify(s)); }
+  return give;
+}
+
 const QUESTS = [
   { id: 'games', em: '🎮', nom: "10 ta o'yin o'yna",       target: 10,  reward: 25, prog: (q) => S.games - q.gamesBase },
   { id: 'xp',    em: '⚡', nom: "150 XP to'pla",           target: 150, reward: 30, prog: (q) => xpTotal() - q.xpBase },
@@ -1087,7 +1112,7 @@ function reflexTugadi(sabab, erta) {
   if (subEl)  subEl.textContent  = sabab + (ortacha ? ` • o'rtacha ${ortacha}ms` : '');
   if (resEl)  resEl.style.display = 'block';
   if (btn)    { btn.style.display = 'block'; btn.textContent = '↩ Qaytadan'; }
-  const xp = rxYutgan.reduce((a, ms) => a + GXP.reflexRound(ms), 0);
+  const xp = capGame('reflex', rxYutgan.reduce((a, ms) => a + GXP.reflexRound(ms), 0));
   S.games++; addXP(xp); badge('gamer');
   if (raundlar >= 8) badge('reflex_master');
   showToast(`⚡ ${raundlar} raund! +${xp} XP`);
@@ -1163,7 +1188,7 @@ async function xotiraBos(i) {
       const lvlEl = $('mem-lvl'), subEl = $('mem-sub'), btn = $('mem-btn');
       if (lvlEl) lvlEl.textContent = `${xD}-Daraja`;
       if (subEl) subEl.textContent = `✓ To'g'ri! ${xD}-darajaga o'tdingiz`;
-      const mxp = GXP.memory(xD, xD >= 5);
+      const mxp = capGame('memory', GXP.memory(xD, xD >= 5));
       S.games++; addXP(mxp); badge('gamer');
       showToast(`🧩 Daraja ${xD}! +${mxp} XP`);
       buildMemGrid();
@@ -1176,7 +1201,7 @@ async function xotiraBos(i) {
     const subEl = $('mem-sub'), btn = $('mem-btn');
     if (subEl) subEl.textContent = `Noto'g'ri! ${xD - 1}-daraja yetdingiz`;
     if (btn)   { btn.style.display = 'block'; btn.textContent = '↩ Qaytadan'; }
-    const reached = Math.max(0, xD - 1), mxp = GXP.memory(reached, reached >= 5);
+    const reached = Math.max(0, xD - 1), mxp = capGame('memory', GXP.memory(reached, reached >= 5));
     S.games++; addXP(mxp); badge('gamer');
     showToast(`🧩 ${reached}-daraja yetdingiz! +${mxp} XP`);
     xD = 1;
@@ -1225,7 +1250,7 @@ function ruletkaAylan() {
     if (title) title.textContent = r.n;
     if (text)  text.textContent  = r.t;
     if (res)   res.classList.add('show');
-    const xp = GXP.ruletka(r.bonus);
+    const xp = capGame('ruletka', GXP.ruletka(r.bonus));
     addXP(xp); badge('gamer'); S.games++;
     haptic('medium');
     showToast(`🎰 ${r.n} +${xp} XP`);
@@ -1365,7 +1390,7 @@ function hisobTugat() {
   if (verdEl)  verdEl.textContent   = hTogri >= 9 ? '🏆 Dahshat!' : hTogri >= 7 ? "🔥 Zo'r!" : hTogri >= 5 ? '👍 Yaxshi urinish' : '💪 Mashq qiling!';
   if (titleEl) titleEl.textContent  = `${hTogri}/10 to'g'ri`;
   haptic('medium');
-  const mxp = Math.round(hTogri * GXP.mathCorrect * (hardMode ? 1.5 : 1));
+  const mxp = capGame('math', Math.round(hTogri * GXP.mathCorrect * (hardMode ? 1.5 : 1)));
   S.games++; addXP(mxp); badge('gamer');
   showToast(`🔢 ${hTogri}/10 to'g'ri! +${mxp} XP${hardMode ? ' ⚡' : ''}`);
 }
@@ -1441,8 +1466,9 @@ function npcNatija() {
   if (descEl)  descEl.textContent  = n.d;
   if (btn)     { btn.style.display = 'block'; btn.textContent = '↩ Qaytadan'; }
   haptic('medium');
-  S.games++; addXP(GXP.npc); badge('gamer');
-  showToast(`🤖 ${n.t}! +${GXP.npc} XP`);
+  const xp = capGame('npc', GXP.npc);
+  S.games++; addXP(xp); badge('gamer');
+  showToast(`🤖 ${n.t}! +${xp} XP`);
 }
 
 /* ── 6. HA YOKI YO'Q (True/False) ── */
@@ -1573,7 +1599,7 @@ function hayoyoNatija() {
   if (vsubEl) vsubEl.textContent = verd.s;
   haptic('medium');
   S.games++; S.hayoyo++;
-  const mxp = Math.round(GXP.hayoyo(hhTogri) * (hardMode ? 1.5 : 1));
+  const mxp = capGame('hayoyo', Math.round(GXP.hayoyo(hhTogri) * (hardMode ? 1.5 : 1)));
   addXP(mxp); badge('gamer');
   if (S.hayoyo >= 5) badge('hayoyo5');
   showToast(`🧪 ${hhTogri}/${hhSavollar.length} to'g'ri! +${mxp} XP`);
@@ -1693,7 +1719,7 @@ function stroopTugadi(sabab) {
   if (verd) verd.textContent = `${sabab} • ` + (stScore >= 20 ? '🏆 Ajoyib!' : stScore >= 12 ? "🔥 Zo'r!" : stScore >= 6 ? '👍 Yaxshi' : 'Mashq qiling!');
   if (res)  res.style.display = 'block';
   if (btn)  btn.style.display = 'none';
-  const xp = Math.max(1, GXP.stroop(stScore));
+  const xp = capGame('stroop', Math.max(1, GXP.stroop(stScore)));
   S.games++; addXP(xp); badge('gamer');
   haptic('medium');
   showToast(`🎨 ${stScore} ball! +${xp} XP`);
@@ -1783,7 +1809,7 @@ function findTugadi(sabab) {
   if (verd) verd.textContent = `${sabab} • ` + (fdScore >= 12 ? "🏆 Burgut ko'z!" : fdScore >= 7 ? "🔥 Zo'r!" : fdScore >= 3 ? '👍 Yaxshi' : 'Mashq qiling!');
   if (res)  res.style.display = 'block';
   if (btn)  btn.style.display = 'none';
-  const xp = Math.max(1, GXP.find(fdScore));
+  const xp = capGame('find', Math.max(1, GXP.find(fdScore)));
   S.games++; addXP(xp); badge('gamer');
   haptic('medium');
   showToast(`🔍 ${fdScore} raund! +${xp} XP`);
@@ -1839,7 +1865,7 @@ function tapTugadi() {
   if (verd) verd.textContent = `${tapN} marta • ` + (tapN >= 50 ? '🏆 Chaqmoq!' : tapN >= 35 ? '🔥 Tez!' : tapN >= 20 ? '👍 Yaxshi' : '🐢 Sekinroq');
   if (res) res.style.display = 'block';
   if (btn) { btn.style.display = 'block'; btn.textContent = '↩ Qaytadan'; }
-  const xp = Math.max(1, GXP.tap(tapN));
+  const xp = capGame('tap', Math.max(1, GXP.tap(tapN)));
   S.games++; addXP(xp); badge('gamer');
   haptic('medium');
   showToast(`👆 ${tapN} marta! +${xp} XP`);
@@ -1902,7 +1928,7 @@ function targetTugadi(sabab) {
   if (verd) verd.textContent = `${sabab} • ` + (tgScore >= 20 ? '🏆 Snayper!' : tgScore >= 12 ? "🔥 Zo'r!" : tgScore >= 6 ? '👍 Yaxshi' : 'Mashq qiling!');
   if (res)  res.style.display = 'block';
   if (btn)  btn.style.display = 'none';
-  const xp = Math.max(1, GXP.target(tgScore));
+  const xp = capGame('target', Math.max(1, GXP.target(tgScore)));
   S.games++; addXP(xp); badge('gamer');
   haptic('medium');
   showToast(`🎯 ${tgScore} ball! +${xp} XP`);
