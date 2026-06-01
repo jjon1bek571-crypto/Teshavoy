@@ -20,13 +20,15 @@ const KV_AUTH     = 'Basic ' + Buffer.from(KVDB_SECRET + ':').toString('base64')
    hisoblamaydi. Shuning uchun bular faqat aql bovar himoya (tashqi
    buzg'unchilikni va absurd qiymatlarni to'xtatadi), to'liq cheat-proof emas. */
 const LIMITS = {
-  MAX_XP:     1000000,
-  MAX_LEVEL:  5000,
-  MAX_STREAK: 100000,
-  MAX_COUNT:  1000000,
-  MAX_IQ:     500,
-  MAX_DELTA:  5000,    // bitta so'rovda XP eng ko'pi shuncha oshishi mumkin
-  MAX_AGE:    86400,   // initData 24 soatdan eski bo'lsa rad etiladi (soniya)
+  MAX_XP:        1000000,
+  MAX_LEVEL:     5000,
+  MAX_STREAK:    100000,
+  MAX_COUNT:     1000000,
+  MAX_IQ:        500,
+  MAX_DELTA:     500,     // bitta so'rovda eng ko'p XP (one-shot sakrashga backstop)
+  HOURLY_CAP:    1500,    // soatiga eng ko'p XP (skript/grind cheklash)
+  SUSPECT_DELTA: 300,     // bundan katta sakrash -> shubhali deb belgilanadi (bloklamaydi)
+  MAX_AGE:       86400,   // initData 24 soatdan eski bo'lsa rad etiladi (soniya)
 };
 
 function clampInt(v, min, max) {

@@ -17,13 +17,11 @@ module.exports = async (req, res) => {
   const type = (req.query && req.query.type) === 'alltime' ? 'alltime' : 'season';
 
   const prefix  = type === 'alltime' ? 'u:' : `s:${season}:`;
-  const players = await kvList(prefix);
-  players.sort((a, b) => (b.xp || 0) - (a.xp || 0));
+  const players = (await kvList(prefix))
+    .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+    .slice(0, 30)
+    // Faqat ommaviy maydonlar (ichki: flags, hourXp, baseXp yashirin qoladi)
+    .map(p => ({ user_id: p.user_id, name: p.name, xp: p.xp || 0, level: p.level || 1 }));
 
-  return res.status(200).json({
-    type,
-    season,
-    daysLeft,
-    players: players.slice(0, 30),
-  });
+  return res.status(200).json({ type, season, daysLeft, players });
 };

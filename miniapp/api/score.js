@@ -36,15 +36,30 @@ module.exports = async (req, res) => {
   const games  = clampInt(body.games,  0, LIMITS.MAX_COUNT);
   const iq     = clampInt(body.iq,     0, LIMITS.MAX_IQ);
 
-  // 3. ALL-TIME: kamaymasin, bitta so'rovda katta sakramasin
+  // 3. ALL-TIME + ANTI-CHEAT (rate-limit + flagging)
   const prev    = await kvGet(key);
   const prevAll = (prev && typeof prev.xp === 'number') ? prev.xp : 0;
-  let   allXp   = xp;
-  if (allXp < prevAll) allXp = prevAll;
-  if (allXp - prevAll > LIMITS.MAX_DELTA) allXp = prevAll + LIMITS.MAX_DELTA;
+  const now     = Date.now();
 
-  const now = Date.now();
-  await kvSet(key, { name, xp: allXp, level, streak, games, iq, ts: now });
+  // Mijoz da'vo qilgan o'sish
+  const claimed = xp - prevAll;
+  let   delta   = claimed;
+  if (delta < 0) delta = 0;                                // kamaymasin
+  if (delta > LIMITS.MAX_DELTA) delta = LIMITS.MAX_DELTA;  // bitta syncda backstop
+
+  // Shubhali sakrash -> belgilaymiz (BLOKLAMAYMIZ, qo'lda tekshirish uchun)
+  let flags = (prev && typeof prev.flags === 'number') ? prev.flags : 0;
+  if (claimed > LIMITS.SUSPECT_DELTA) flags++;
+
+  // Soatlik rate-limit (fixed window)
+  let hourStart = (prev && typeof prev.hourStart === 'number') ? prev.hourStart : now;
+  let hourXp    = (prev && typeof prev.hourXp === 'number') ? prev.hourXp : 0;
+  if (now - hourStart >= 3600000) { hourStart = now; hourXp = 0; }
+  const accepted = Math.min(delta, Math.max(0, LIMITS.HOURLY_CAP - hourXp));
+  hourXp += accepted;
+
+  const allXp = prevAll + accepted;
+  await kvSet(key, { name, xp: allXp, level, streak, games, iq, hourStart, hourXp, flags, ts: now });
 
   // 4. MAVSUM: seasonXp = all-time - (mavsum boshidagi all-time)
   const season = currentSeason();
