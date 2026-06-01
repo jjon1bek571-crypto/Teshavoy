@@ -246,6 +246,7 @@ function claimQuest(id) {
   showToast(`✅ Vazifa bajarildi! +${def.reward} XP`);
   renderQuests();
   renderSpin();
+  renderReferral();
 }
 
 /* ══════════════════════════════════════
@@ -305,6 +306,44 @@ async function dailySpin() {
   showToast(reward >= 50 ? `🎉 JACKPOT! +${reward} XP` : `🎡 +${reward} XP!`);
   _spinning = false;
   setTimeout(renderSpin, 2600);
+}
+
+/* ══════════════════════════════════════
+   REFERRAL (do'st chaqirish — 5 ta -> sovg'a qur'asi)
+══════════════════════════════════════ */
+const BOT_USERNAME = 'teshavoyaka_bot';
+
+function myUid() {
+  return (tg?.initDataUnsafe?.user?.id || ls.get('uid') || '').toString();
+}
+
+function inviteFriends() {
+  const uid = myUid();
+  if (!uid) { showToast('Telegram orqali oching'); return; }
+  const link  = `https://t.me/${BOT_USERNAME}?start=ref${uid}`;
+  const text  = "🧠 MIYA.EXE — IQ test, 10 o'yin va oylik musobaqa (sovg'alar bilan)! Qo'shil:";
+  const share = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`;
+  haptic('medium');
+  if (tg?.openTelegramLink) tg.openTelegramLink(share);
+  else window.open(share, '_blank');
+}
+
+async function renderReferral() {
+  const sub = $('ref-sub'), bar = $('ref-bar');
+  if (!sub) return;
+  const uid = myUid();
+  if (!uid) { sub.textContent = 'Telegram orqali oching'; return; }
+  try {
+    const r = await fetch(`/api/referral?uid=${encodeURIComponent(uid)}`, { cache: 'no-store' });
+    const d = await r.json();
+    const c = d.count || 0, need = d.need || 5;
+    if (bar) bar.style.width = Math.min(100, Math.round(c / need * 100)) + '%';
+    sub.textContent = c >= need
+      ? `✅ ${c}/${need} — sovg'a qur'asiga kirdingiz!`
+      : `${c}/${need} do'st chaqirilgan`;
+  } catch {
+    sub.textContent = "5 ta do'st chaqir → qur'aga kirasan";
+  }
 }
 
 /* ══════════════════════════════════════

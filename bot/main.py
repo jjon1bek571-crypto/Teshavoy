@@ -6,8 +6,12 @@ Ishga tushirish: python main.py
 import os
 import asyncio
 import random
+import json
+import base64
+from urllib.parse import quote
+import aiohttp
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart, Command, CommandObject
 from aiogram.types import WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -27,7 +31,55 @@ MINI_APP_URL  = "https://miniapp-fawn-sigma.vercel.app"
 CHANNEL_URL   = "https://t.me/myprojectuz1"
 INSTAGRAM_URL = "https://instagram.com/djuraeef_v"
 
+# Referral ombori (mini app bilan bir xil kvdb bucket — Railway env'da bering)
+KVDB_BUCKET = os.getenv("KVDB_BUCKET", "")
+KVDB_SECRET = os.getenv("KVDB_SECRET", "")
+_KV_BASE = f"https://kvdb.io/{KVDB_BUCKET}"
+_KV_AUTH = "Basic " + base64.b64encode((KVDB_SECRET + ":").encode()).decode()
+
 # ══════════════════════════════════════════════════════════════
+
+
+async def _kv_get(session, key):
+    try:
+        async with session.get(f"{_KV_BASE}/{quote(key, safe='')}",
+                               headers={"Authorization": _KV_AUTH}) as r:
+            if r.status != 200:
+                return None
+            try:
+                return json.loads(await r.text())
+            except Exception:
+                return None
+    except Exception:
+        return None
+
+
+async def _kv_set(session, key, obj):
+    try:
+        async with session.post(f"{_KV_BASE}/{quote(key, safe='')}",
+                                headers={"Authorization": _KV_AUTH,
+                                         "Content-Type": "text/plain"},
+                                data=json.dumps(obj)) as r:
+            return r.status < 300
+    except Exception:
+        return False
+
+
+async def record_referral(referrer: str, new_user: str):
+    """Yangi user referral orqali kelsa, taklif qiluvchi sonini +1 qiladi.
+    Har yangi user FAQAT bir marta; o'z-o'zini taklif hisoblanmaydi."""
+    if not KVDB_BUCKET or not KVDB_SECRET:
+        return
+    if not referrer or not referrer.isdigit() or referrer == new_user:
+        return
+    async with aiohttp.ClientSession() as session:
+        if await _kv_get(session, f"refby:{new_user}"):
+            return  # allaqachon hisoblangan
+        await _kv_set(session, f"refby:{new_user}", {"by": referrer})
+        rec = await _kv_get(session, f"ref:{referrer}")
+        cnt = rec.get("count", 0) if isinstance(rec, dict) else 0
+        await _kv_set(session, f"ref:{referrer}", {"count": cnt + 1})
+
 
 bot = Bot(token=BOT_TOKEN)
 dp  = Dispatcher()
@@ -73,7 +125,11 @@ def roast_keyboard():
 
 # ── /start ────────────────────────────────────────────────────
 @dp.message(CommandStart())
-async def cmd_start(message: types.Message):
+async def cmd_start(message: types.Message, command: CommandObject = None):
+    # Referral: havola /start ref<UID> ko'rinishida keladi
+    payload = command.args if command else None
+    if payload and payload.startswith("ref"):
+        await record_referral(payload[3:], str(message.from_user.id))
     name = message.from_user.first_name or "Do'stim"
     text = (
         f"<b>Salom, {name}! 👋</b>\n\n"
