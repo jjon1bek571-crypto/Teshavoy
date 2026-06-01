@@ -31,9 +31,17 @@ MINI_APP_URL  = "https://miniapp-fawn-sigma.vercel.app"
 CHANNEL_URL   = "https://t.me/myprojectuz1"
 INSTAGRAM_URL = "https://instagram.com/djuraeef_v"
 
-# Referral ombori (mini app bilan bir xil kvdb bucket — Railway env'da bering)
+# Referral ombori (mini app bilan bir xil kvdb bucket).
+# Avval muhit o'zgaruvchisidan (Railway), keyin secret.py dan o'qiladi.
 KVDB_BUCKET = os.getenv("KVDB_BUCKET", "")
 KVDB_SECRET = os.getenv("KVDB_SECRET", "")
+if not KVDB_BUCKET or not KVDB_SECRET:
+    try:
+        import secret as _secret  # bot/secret.py
+        KVDB_BUCKET = KVDB_BUCKET or getattr(_secret, "KVDB_BUCKET", "")
+        KVDB_SECRET = KVDB_SECRET or getattr(_secret, "KVDB_SECRET", "")
+    except ImportError:
+        pass
 _KV_BASE = f"https://kvdb.io/{KVDB_BUCKET}"
 _KV_AUTH = "Basic " + base64.b64encode((KVDB_SECRET + ":").encode()).decode()
 
