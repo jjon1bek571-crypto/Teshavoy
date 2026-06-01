@@ -21,7 +21,7 @@ async function syncToBackend() {
     ls.set('uid', uid);
     await fbSaveUser(uid, {
       name:   S.name,
-      xp:     S.xp + (S.level - 1) * 100,
+      xp:     xpTotal(),
       level:  S.level,
       streak: S.streak,
       roasts: S.roasts,
@@ -68,9 +68,22 @@ function save() {
   ls.set('hayoyo', S.hayoyo);
 }
 
+/* ── XP iqtisodi (ANCHA QIYIN) ──
+   Har daraja oldingisidan 150 XP ko'proq talab qiladi.
+   1→2: 150, 2→3: 300, 3→4: 450 ... (avval hammasi 100 edi). */
+function xpNeeded(level) {
+  return level * 150;
+}
+/* Reytingdagi UMUMIY ball (to'plangan barcha XP, monoton) */
+function xpTotal() {
+  let sum = S.xp;
+  for (let l = 1; l < S.level; l++) sum += xpNeeded(l);
+  return sum;
+}
+
 function addXP(n) {
   S.xp += n;
-  const need = S.level * 100;
+  const need = xpNeeded(S.level);
   if (S.xp >= need) {
     S.xp -= need;
     S.level++;
@@ -89,7 +102,7 @@ function haptic(type) {
 
 /* ── Topbar yangilash ── */
 function updateTopbar() {
-  const totalXP = S.xp + (S.level - 1) * 100;
+  const totalXP = xpTotal();
   document.querySelectorAll('.h-xp-val').forEach(e => e.textContent = totalXP + ' XP');
   document.querySelectorAll('.h-lvl-val').forEach(e => e.textContent = S.level + '-D');
   const el1 = $('h-xp'); if (el1) el1.textContent = totalXP + ' XP';
@@ -135,7 +148,20 @@ async function boot() {
   }
   await sleep(500);
   goTo('home');
-  addXP(10);
+  addXP(5);
+  showWelcome();
+}
+
+/* ── Xush kelibsiz oynasi (faqat birinchi kirishda) ── */
+function showWelcome() {
+  if (ls.get('seen_intro')) return;     // ko'rgan bo'lsa — chiqarmaymiz
+  const ov = $('welcome');
+  if (ov) ov.classList.add('open');
+}
+function closeWelcome() {
+  haptic('light');
+  ls.set('seen_intro', '1');
+  $('welcome')?.classList.remove('open');
 }
 
 /* ══════════════════════════════════════
@@ -165,7 +191,7 @@ function renderHome() {
    REYTING — faqat haqiqiy o'yinchilar
 ══════════════════════════════════════ */
 async function renderRating() {
-  const myXP  = S.xp + (S.level - 1) * 100;
+  const myXP  = xpTotal();
   const myUID = ls.get('uid') || '';
 
   // Avval yuklanmoqda ko'rsatamiz
@@ -312,11 +338,11 @@ function doRoast() {
     if (roastTarixi.length > 5) roastTarixi.pop();
     ls.set('rtarixi', JSON.stringify(roastTarixi));
     S.roasts++;
-    addXP(20);
+    addXP(10);
     badge('roast1');
     renderRoastTarixi();
     haptic('medium');
-    showToast('😂 Tahlil tugadi! +20 XP');
+    showToast('😂 Tahlil tugadi! +10 XP');
   }, 3600);
 }
 
@@ -363,6 +389,14 @@ const IQ_HAVZA = {
     { s: "Qaysi planeta quyoshga eng yaqin?",                                           t: ["Venera", "Merkuriy", "Yer", "Mars"], c: 1 },
     { s: "1 kilometrda necha metr bor?",                                                t: ["100", "500", "1000", "10000"], c: 2 },
     { s: "O'zbekistonning poytaxti qaysi shahar?",                                      t: ["Samarqand", "Buxoro", "Toshkent", "Namangan"], c: 2 },
+    { s: "5 + 7 = ?",                                                                   t: ["10", "11", "12", "13"], c: 2 },
+    { s: "Bir haftada necha kun bor?",                                                  t: ["5", "6", "7", "8"], c: 2 },
+    { s: "Qaysi rang qizil va sariq aralashmasidan hosil bo'ladi?",                     t: ["Yashil", "To'q sariq", "Binafsha", "Jigarrang"], c: 1 },
+    { s: "Bir yilda nechta fasl bor?",                                                  t: ["2", "3", "4", "5"], c: 2 },
+    { s: "10 - 4 = ?",                                                                  t: ["5", "6", "7", "4"], c: 1 },
+    { s: "Quyosh qaysi tomondan chiqadi?",                                              t: ["G'arb", "Sharq", "Shimol", "Janub"], c: 1 },
+    { s: "Muz erisa nimaga aylanadi?",                                                  t: ["Bug'", "Suv", "Tuz", "Havo"], c: 1 },
+    { s: "Qaysi mevaning rangi odatda sariq?",                                          t: ["Olma", "Banan", "Uzum", "Olcha"], c: 1 },
   ],
   orta: [
     { s: "2 + 2 × 2 = ?",                                                              t: ["8", "6", "4", "12"], c: 1 },
@@ -380,13 +414,21 @@ const IQ_HAVZA = {
     { s: "Agar A>B va B>C bo'lsa, A va C orasida qanday munosabat?",                   t: ["A<C", "A=C", "A>C", "Aniqlab bo'lmaydi"], c: 2 },
     { s: "Tovuq 6 kunda 6 tuxum qo'ysa, 12 tovuq 12 kunda nechta tuxum qo'yadi?",     t: ["72", "12", "144", "24"], c: 2 },
     { s: "Qancha 9 bor 100 dan kichik 9 ga bo'linadigan sonlarda?",                    t: ["9", "10", "11", "12"], c: 2 },
+    { s: "100 ning yarmi qancha?",                                                     t: ["25", "50", "75", "40"], c: 1 },
+    { s: "12 × 12 = ?",                                                                t: ["124", "144", "121", "132"], c: 1 },
+    { s: "2, 4, 6, 8 — keyingi son?",                                                  t: ["9", "10", "11", "12"], c: 1 },
+    { s: "Uchburchak burchaklari yig'indisi necha gradus?",                            t: ["90", "180", "270", "360"], c: 1 },
+    { s: "Suv necha gradusda qaynaydi (dengiz sathida)?",                              t: ["50°C", "90°C", "100°C", "120°C"], c: 2 },
+    { s: "1, 2, 4, 8, 16 — keyingi son?",                                              t: ["24", "30", "32", "20"], c: 2 },
+    { s: "3 ta qalam 6 ming so'm bo'lsa, 5 ta qalam necha pul?",                       t: ["8 ming", "10 ming", "12 ming", "9 ming"], c: 1 },
+    { s: "Qaysi son qatorga to'g'ri kelmaydi? 3, 6, 9, 13, 15",                        t: ["6", "9", "13", "15"], c: 2 },
   ],
   qiyin: [
     { s: "Ko'l yuzasida nilufar guli bor. Har kuni ikki barobarlaydi. 30 kunda to'ladi. Qachon yarmi to'lgan?", t: ["15-kuni", "29-kuni", "10-kuni", "20-kuni"], c: 1 },
     { s: "Agar 5 ta mashina 5 daqiqada 5 ta detal yasasa, 100 mashina 100 daqiqada nechta yasaydi?",            t: ["100", "500", "10000", "1000"], c: 2 },
     { s: "Tovuq va yarim tovuq 1.5 kunda 1.5 tuxum qo'ysa, 6 tovuq 6 kunda nechta tuxum qo'yadi?",            t: ["6", "9", "12", "18"], c: 0 },
     { s: "Agar 1 + 1 = 2, 2 + 2 = 8, 3 + 3 = 18 bo'lsa, 4 + 4 = ?",                  t: ["32", "16", "24", "64"], c: 0 },
-    { s: "Bir odamda 2 ona bor. Bu qanday mumkin?",                                     t: ["Mumkin emas", "Biologi va o'gʻay onasi", "Opa-singil", "Ikkinchi nikoh"], c: 1 },
+    { s: "Bir odamda 2 ona bor. Bu qanday mumkin?",                                     t: ["Mumkin emas", "Biologik va o'gay onasi", "Opa-singil", "Ikkinchi nikoh"], c: 1 },
     { s: "Birinchi bo'lish uchun quvib o'tish kerak. Qancha odamni quvib o'tish kerak?", t: ["1 ta", "2 ta", "Hammani", "Hech kimni"], c: 0 },
     { s: "Qaysi raqam bir xil yoziladigan bo'lsa ham soni o'zgarmaydi (o'ng-chap)?",    t: ["6", "8", "0", "9"], c: 1 },
     { s: "Agar 5 ta do'stingiz bor bo'lsa va har biri boshqa 5 ta do'st bilan salom berse, jami nechta salom?", t: ["25", "30", "20", "15"], c: 1 },
@@ -394,6 +436,14 @@ const IQ_HAVZA = {
     { s: "Son qatorida: 1, 1, 2, 3, 5, 8, 13 — keyingi son?",                          t: ["18", "20", "21", "24"], c: 2 },
     { s: "Agar barmoqlaringizni yozsangiz — 5 ta bor. Ikki qo'lda hammasi nechta? (boshqacha o'ylang)",          t: ["10", "5", "9", "8"], c: 0 },
     { s: "Bir piyolaga suv to'ldirdingiz. Endi u yarim bo'sh yoki yarim to'lami?",       t: ["Yarim bo'sh", "Yarim to'la", "Ikkalasi ham to'g'ri", "Farqi yo'q"], c: 2 },
+    { s: "Bir g'isht 1 kg va yarim g'isht keladi. G'isht necha kg?",                    t: ["1.5 kg", "2 kg", "2.5 kg", "3 kg"], c: 1 },
+    { s: "5 kishi bir marta qo'l berib ko'rishsa, jami necha marta qo'l beriladi?",     t: ["10", "15", "20", "25"], c: 0 },
+    { s: "Qatorda: 2, 6, 12, 20, 30 — keyingi son?",                                   t: ["38", "40", "42", "36"], c: 2 },
+    { s: "Tovuqni 100 ga oldim, 110 ga sotdim, 120 ga qayta oldim, 130 ga sotdim. Foydam?", t: ["10 so'm", "20 so'm", "0 so'm", "30 so'm"], c: 1 },
+    { s: "Yarim sham 1 soatda yonib tugasa, butun sham necha soatda tugaydi?",          t: ["1 soat", "1.5 soat", "2 soat", "4 soat"], c: 2 },
+    { s: "Bitta nasos hovuzni 6 soatda to'ldiradi. Ikkita bir xil nasos-chi?",          t: ["2 soat", "3 soat", "6 soat", "12 soat"], c: 1 },
+    { s: "Qo'ng'iroq 6 marta jiringlashi 30 soniya bo'lsa, 12 marta-chi?",              t: ["60", "66", "72", "55"], c: 1 },
+    { s: "12 ta tangadan bittasi yengilroq. Tarozida eng kam necha marta o'lchaymiz?",  t: ["2", "3", "4", "6"], c: 1 },
   ],
 };
 
@@ -506,23 +556,31 @@ function iqNatija() {
   if (descEl) descEl.textContent = n.desc;
   if (factEl) factEl.textContent = IQ_FAKTLAR[Math.floor(Math.random() * IQ_FAKTLAR.length)];
   S.iq = n.ball;
-  addXP(30);
+  addXP(15);
   badge('iq1');
   haptic('medium');
-  showToast(`🧠 ${n.ball} ball! +30 XP`);
+  showToast(`🧠 ${n.ball} ball! +15 XP`);
 }
 
 /* ══════════════════════════════════════
    BUGUNGI SAVOL
 ══════════════════════════════════════ */
 const SAVOLLAR = [
-  { tur: "PSIXOLOGIYA",       s: "Do'stingiz kech soat 11 da 'salom' yozdi. Siz nima qilasiz?",           j: ["Darhol javob beraman", "Ko'raman, ertaga yozaman", "Ko'rmaganman qilaman", "1 soat kutib yozaman"],              f: "Muloqot sifati do'stlik sifatini belgilaydi. Vaqtida javob berish e'tiborning nishoni.",                     xp: 30 },
-  { tur: "HAYOT SAVOLI",      s: "Bugun nechta qaroringizni o'zingiz qabul qildingiz?",                    j: ["0-1 ta", "2-3 ta", "4-5 ta", "Sanagan emasman"],                                                                f: "O'rtacha inson kuniga 35,000 ta qaror qabul qiladi. Ko'pchiligi avtomatik va ongsiz.",                       xp: 25 },
-  { tur: "O'Z-O'ZINI BILISH", s: "Yangi narsa o'rganmoqchi bo'ldingiz, lekin boshlamadingiz. Sabab?",     j: ["Vaqt yo'q", "Qaerdan boshlashni bilmayman", "Yolg'iz uddalab bo'lmaydi", "Shunchaki qo'ymadim"],               f: "2 daqiqalik qoida: har qanday ishni faqat 2 daqiqa boshlang. Miya to'xtatishga qarshilik qiladi.",          xp: 25 },
-  { tur: "IJTIMOIY PSIXOLOGIYA",s:"Guruhda hammaning fikri bir xil. Siz nima qilasiz?",                   j: ["Qo'shilaman", "Rozi bo'lmasam ham indamayman", "O'z fikrimi aytaman", "Kuzataman"],                             f: "Guruh bosimi tufayli odamlar noto'g'ri qarorga qo'shiladi. Mustaqil fikr — eng katta kuch.",                 xp: 35 },
-  { tur: "MIYA TESTI",        s: "Stress paytida birinchi nima qilasiz?",                                  j: ["Telefon olaman", "Biror narsani yeyman", "Yolg'iz qolib o'ylayman", "Kimgadir gapiraman"],                     f: "4-7-8 nafas texnikasi: 4 nafas ol, 7 tut, 8 chiqar. Bu miyani 2 daqiqada tinchlantiradi.",                   xp: 30 },
-  { tur: "HAYOT FALSAFASI",   s: "'Muvaffaqiyat' deganda birinchi nima esingizga keladi?",                 j: ["Boylik va pul", "Xotirjamlik va tinchlik", "Tan olinish", "Erkinlik"],                                         f: "75,000$ dan yuqori daromad xursandchilikni oshirmaydi. Do'stlar va sog'liq — asosiy omillar.",                xp: 25 },
-  { tur: "KUZATUV",           s: "Bugun o'zingizga eng kamida bitta yaxshi gap aytdingizmi?",              j: ["Ha, aytdim", "Yo'q, aytmadim", "Unchalik emas", "Fikr ham qilmadim"],                                         f: "O'z-o'ziga ijobiy munosabat zaruryat. Har kuni 1 ta o'zingizni maqtang — miya buni sevinadi!",               xp: 20 },
+  { tur: "PSIXOLOGIYA",       s: "Do'stingiz kech soat 11 da 'salom' yozdi. Siz nima qilasiz?",           j: ["Darhol javob beraman", "Ko'raman, ertaga yozaman", "Ko'rmaganman qilaman", "1 soat kutib yozaman"],              f: "Muloqot sifati do'stlik sifatini belgilaydi. Vaqtida javob berish e'tiborning nishoni.",                     xp: 15 },
+  { tur: "HAYOT SAVOLI",      s: "Bugun nechta qaroringizni o'zingiz qabul qildingiz?",                    j: ["0-1 ta", "2-3 ta", "4-5 ta", "Sanagan emasman"],                                                                f: "O'rtacha inson kuniga 35,000 ta qaror qabul qiladi. Ko'pchiligi avtomatik va ongsiz.",                       xp: 12 },
+  { tur: "O'Z-O'ZINI BILISH", s: "Yangi narsa o'rganmoqchi bo'ldingiz, lekin boshlamadingiz. Sabab?",     j: ["Vaqt yo'q", "Qayerdan boshlashni bilmayman", "Yolg'iz uddalab bo'lmaydi", "Shunchaki qo'ymadim"],               f: "2 daqiqalik qoida: har qanday ishni faqat 2 daqiqa boshlang. Miya to'xtatishga qarshilik qiladi.",          xp: 12 },
+  { tur: "IJTIMOIY PSIXOLOGIYA",s:"Guruhda hammaning fikri bir xil. Siz nima qilasiz?",                   j: ["Qo'shilaman", "Rozi bo'lmasam ham indamayman", "O'z fikrimi aytaman", "Kuzataman"],                             f: "Guruh bosimi tufayli odamlar noto'g'ri qarorga qo'shiladi. Mustaqil fikr — eng katta kuch.",                 xp: 18 },
+  { tur: "MIYA TESTI",        s: "Stress paytida birinchi nima qilasiz?",                                  j: ["Telefon olaman", "Biror narsani yeyman", "Yolg'iz qolib o'ylayman", "Kimgadir gapiraman"],                     f: "4-7-8 nafas texnikasi: 4 nafas ol, 7 tut, 8 chiqar. Bu miyani 2 daqiqada tinchlantiradi.",                   xp: 15 },
+  { tur: "HAYOT FALSAFASI",   s: "'Muvaffaqiyat' deganda birinchi nima esingizga keladi?",                 j: ["Boylik va pul", "Xotirjamlik va tinchlik", "Tan olinish", "Erkinlik"],                                         f: "75,000$ dan yuqori daromad xursandchilikni oshirmaydi. Do'stlar va sog'liq — asosiy omillar.",                xp: 12 },
+  { tur: "KUZATUV",           s: "Bugun o'zingizga eng kamida bitta yaxshi gap aytdingizmi?",              j: ["Ha, aytdim", "Yo'q, aytmadim", "Unchalik emas", "Fikr ham qilmadim"],                                         f: "O'z-o'ziga ijobiy munosabat — zarurat. Har kuni 1 ta o'zingizni maqtang — miya buni sevinadi!",               xp: 10 },
+  { tur: "ODATLAR",            s: "Ertalab uyg'ongach birinchi nima qilasiz?",             j: ["Telefonni olaman", "Suv ichaman", "Cho'zilaman yoki mashq", "Yana uxlayman"],                                  f: "Ertalabki birinchi 20 daqiqa kun kayfiyatini belgilaydi. Telefonsiz boshlash diqqatni oshiradi.",            xp: 12 },
+  { tur: "DIQQAT",             s: "Bir ishga qancha vaqt uzluksiz diqqat qarata olasiz?",   j: ["10 daqiqagacha", "25 daqiqacha", "1 soatcha", "Diqqatim tez bo'linadi"],                                       f: "Pomodoro texnikasi: 25 daqiqa ishlab, 5 daqiqa dam oling. Miya bo'laklarga bo'lingan ishni osonroq qabul qiladi.", xp: 14 },
+  { tur: "MUNOSABAT",          s: "Yaqin do'stingiz bilan oxirgi marta qachon gaplashdingiz?", j: ["Bugun", "Shu hafta", "Bu oy", "Ancha bo'ldi"],                                                            f: "Ijtimoiy aloqalar uzoq umr ko'rishning eng kuchli omillaridan biri — ko'pincha sog'liqdan ham muhimroq.",     xp: 12 },
+  { tur: "SOG'LIQ",            s: "Bugun necha stakan suv ichdingiz?",                      j: ["0-1 ta", "2-4 ta", "5-7 ta", "8 va undan ko'p"],                                                              f: "Miya 75% suvdan iborat. Yengil suvsizlik ham diqqat va kayfiyatni pasaytiradi.",                              xp: 10 },
+  { tur: "O'SISH",             s: "Oxirgi marta qulay zonangizdan qachon chiqdingiz?",      j: ["Bugun", "Yaqinda", "Eslayolmayman", "Chiqishga qo'rqaman"],                                                    f: "Miya yangi tajribalardan o'sadi. Kichik noqulaylik — rivojlanish belgisi.",                                  xp: 16 },
+  { tur: "MINNATDORCHILIK",    s: "Bugun nimadan minnatdorsiz?",                            j: ["Sog'lig'imdan", "Yaqinlarimdan", "Kichik bir narsadan", "Hali o'ylamadim"],                                    f: "Har kuni 3 ta minnatdorchilik yozish bir necha hafta ichida baxt darajasini sezilarli oshiradi.",            xp: 12 },
+  { tur: "EKRAN VAQTI",        s: "Bugun telefonda taxminan qancha vaqt o'tkazdingiz?",     j: ["1 soatdan kam", "1-3 soat", "3-5 soat", "5 soatdan ko'p"],                                                     f: "O'rtacha odam kuniga ~4 soat ekranga qaraydi. Atigi 1 soat kamaytirish ham xotirjamlikni oshiradi.",         xp: 12 },
+  { tur: "MAQSAD",             s: "Hozir hayotingizdagi eng muhim 1 ta maqsad aniqmi?",     j: ["Ha, juda aniq", "Taxminan bor", "Bir nechta, chalkash", "Yo'q"],                                               f: "Aniq va yozilgan maqsad amalga oshish ehtimolini oshiradi — miyaga yo'nalish beradi.",                       xp: 15 },
 ];
 
 function renderDaily() {
@@ -605,7 +663,7 @@ const BADGE_LIST = [
 const DARAJALAR = ['', 'Yangi boshlovchi', 'Qiziquvchan', 'Fikrlovchi', 'Tajribali', 'Ustoz', 'MIYA PRIME'];
 
 function renderProfile() {
-  const need = S.level * 100;
+  const need = xpNeeded(S.level);
   const pct  = Math.min(100, Math.round(S.xp / need * 100));
   const nameEl  = $('p-name');
   const titleEl = $('p-title');
@@ -645,7 +703,7 @@ function badge(id) {
 }
 
 function checkBadges() {
-  if (S.xp + (S.level - 1) * 100 >= 100) badge('xp100');
+  if (xpTotal() >= 100) badge('xp100');
   if (S.level >= 3) badge('level3');
 }
 
@@ -656,8 +714,8 @@ function secretKod() {
   const KODLAR = { 'MIYA2025': 'secret', 'GLITCH': 'secret', 'NPC404': 'secret', 'CHAOS': 'secret' };
   if (KODLAR[v]) {
     badge(KODLAR[v]);
-    addXP(50);
-    showToast('✅ Kod qabul qilindi! +50 XP');
+    addXP(25);
+    showToast('✅ Kod qabul qilindi! +25 XP');
     inp.value = '';
     haptic('medium');
   } else {
@@ -680,11 +738,20 @@ function openGame(nom) {
   if (nom === 'math')     hisobReset();
   if (nom === 'npc')      npcReset();
   if (nom === 'hayoyo')   hayoyoReset();
+  if (nom === 'stroop')   stroopReset();
+  if (nom === 'find')     findReset();
+  if (nom === 'tap')      tapReset();
+  if (nom === 'target')   targetReset();
 }
 
 function closeGame(nom) {
   const m = $(`modal-${nom}`);
   if (m) m.classList.remove('open');
+  // Ishlab turgan o'yin taymerlarini to'xtatamiz (XP/toast modal yopiq holda chiqmasin)
+  if (nom === 'stroop') stroopStop();
+  if (nom === 'find')   findStop();
+  if (nom === 'tap')    tapStop();
+  if (nom === 'target') targetStop();
 }
 
 /* ── 1. REFLEX O'YINI ── */
@@ -774,7 +841,7 @@ function reflexTugadi(sabab, erta) {
   if (subEl)  subEl.textContent  = sabab + (ortacha ? ` • o'rtacha ${ortacha}ms` : '');
   if (resEl)  resEl.style.display = 'block';
   if (btn)    { btn.style.display = 'block'; btn.textContent = '↩ Qaytadan'; }
-  const xp = raundlar * 5;
+  const xp = raundlar * 2;
   S.games++; addXP(xp); badge('gamer');
   if (raundlar >= 8) badge('reflex_master');
   showToast(`⚡ ${raundlar} raund! +${xp} XP`);
@@ -850,8 +917,8 @@ async function xotiraBos(i) {
       const lvlEl = $('mem-lvl'), subEl = $('mem-sub'), btn = $('mem-btn');
       if (lvlEl) lvlEl.textContent = `${xD}-Daraja`;
       if (subEl) subEl.textContent = `✓ To'g'ri! ${xD}-darajaga o'tdingiz`;
-      S.games++; addXP(xD * 5); badge('gamer');
-      showToast(`🧩 Daraja ${xD}! +${xD * 5} XP`);
+      S.games++; addXP(xD * 2); badge('gamer');
+      showToast(`🧩 Daraja ${xD}! +${xD * 2} XP`);
       buildMemGrid();
       setTimeout(xotiraBoshlash, 900);
     }
@@ -862,7 +929,7 @@ async function xotiraBos(i) {
     const subEl = $('mem-sub'), btn = $('mem-btn');
     if (subEl) subEl.textContent = `Noto'g'ri! ${xD - 1}-daraja yetdingiz`;
     if (btn)   { btn.style.display = 'block'; btn.textContent = '↩ Qaytadan'; }
-    S.games++; addXP(xD > 2 ? 15 : 8); badge('gamer');
+    S.games++; addXP(xD > 2 ? 6 : 3); badge('gamer');
     showToast(`🧩 ${xD - 1}-daraja yetdingiz!`);
     xD = 1;
     const lvlEl = $('mem-lvl');
@@ -879,7 +946,7 @@ const RULETKA = [
   { em: '🤝', n: 'Aloqa qiling!',        t: "Uzoq vaqt gaplashmagan birovga bugun 'salom' yozing." },
   { em: '🎯', n: '1 ishni bajaring!',    t: "Bugun faqat 1 ta muhim ishni bajaring. Faqat 1 ta — shu yetarli." },
   { em: '📵', n: 'Telefon dam olsin!',   t: "Keyingi 1 soat telefonni qo'ying. Qo'lingizni band qiling." },
-  { em: '🌟', n: 'Omad siz bilan!',      t: "Bugun siz OMADLI FOYDALANUVCHI siz! +15 bonus XP berildi!", bonus: 15 },
+  { em: '🌟', n: 'Omad siz bilan!',      t: "Bugun siz OMADLI FOYDALANUVCHI siz! +8 bonus XP berildi!", bonus: 8 },
   { em: '😂', n: 'Kuldiruvchi topshiriq!', t: "Yaqin do'stingizga bugun biror kulgili narsa yuboring!" },
   { em: '🌈', n: "O'zingizni maqtang!",  t: "Bugun o'z-o'zingizga: 'Men bugun yaxshi ish qildim' deng." },
 ];
@@ -910,7 +977,7 @@ function ruletkaAylan() {
     if (title) title.textContent = r.n;
     if (text)  text.textContent  = r.t;
     if (res)   res.classList.add('show');
-    const xp = r.bonus || 10;
+    const xp = r.bonus || 5;
     addXP(xp); badge('gamer'); S.games++;
     haptic('medium');
     showToast(`🎰 ${r.n} +${xp} XP`);
@@ -1000,7 +1067,7 @@ function hisobKorsat() {
   const exprEl = $('math-expr');
   const optsEl = $('math-opts');
   if (subEl)  subEl.textContent  = `${hHozir + 1} / ${hSavollar.length}`;
-  if (exprEl) exprEl.textContent = q.ifoda + ' = ?';
+  if (exprEl) exprEl.textContent = q.ifoda;
   if (optsEl) {
     optsEl.innerHTML = '';
     q.tanlov.forEach(o => {
@@ -1049,8 +1116,8 @@ function hisobTugat() {
   if (verdEl)  verdEl.textContent   = hTogri >= 9 ? '🏆 Dahshat!' : hTogri >= 7 ? "🔥 Zo'r!" : hTogri >= 5 ? '👍 Yaxshi urinish' : '💪 Mashq qiling!';
   if (titleEl) titleEl.textContent  = `${hTogri}/10 to'g'ri`;
   haptic('medium');
-  S.games++; addXP(hTogri * 3); badge('gamer');
-  showToast(`🔢 ${hTogri}/10 to'g'ri! +${hTogri * 3} XP`);
+  S.games++; addXP(hTogri * 2); badge('gamer');
+  showToast(`🔢 ${hTogri}/10 to'g'ri! +${hTogri * 2} XP`);
 }
 
 /* ── 5. NPC TESTI ── */
@@ -1124,45 +1191,64 @@ function npcNatija() {
   if (descEl)  descEl.textContent  = n.d;
   if (btn)     { btn.style.display = 'block'; btn.textContent = '↩ Qaytadan'; }
   haptic('medium');
-  S.games++; addXP(20); badge('gamer');
-  showToast(`🤖 ${n.t}! +20 XP`);
+  S.games++; addXP(10); badge('gamer');
+  showToast(`🤖 ${n.t}! +10 XP`);
 }
 
 /* ── 6. HA YOKI YO'Q (True/False) ── */
 const HAYOYO_FAKTLAR = [
   // Ilm va miya
   { f: "Inson miyasi faqat 10% ishlaydi",                                       j: false, izoh: "Bu mif! Miya deyarli 100% ishlaydi — turli qismlari navbatlashib faol bo'ladi." },
-  { f: "Uyqu paytida miya tozalanadi",                                           j: true,  izoh: "To'g'ri! 'Glifatik tizim' orqali zaharli moddalar chiqariladi. Shuning uchun yetarli uyqusiz miya eslab qola olmaydi." },
-  { f: "Kulish uchun 43 ta muskul kerak, jilmayish uchun 17 ta",                j: false, izoh: "Noto'g'ri! Aksincha — jilmayish uchun kam muskul kerak. Ba'zi tadqiqotlar sonlarni farqlantiradi." },
-  { f: "Inson ko'zi 10 million rang farqlay oladi",                              j: true,  izoh: "To'g'ri! Ko'z 10 million nüansni ajratadi — bu har qanday kameradan ko'proq." },
+  { f: "Uyqu paytida miya tozalanadi",                                           j: true,  izoh: "To'g'ri! 'Glimfatik tizim' orqali zaharli moddalar chiqariladi. Shuning uchun yetarli uyqusiz miya eslab qola olmaydi." },
+  { f: "Kulish uchun 43 ta muskul kerak, jilmayish uchun 17 ta",                j: false, izoh: "Noto'g'ri! Aksincha — jilmayish uchun kam muskul kerak. Ba'zi tadqiqotlar bu sonlarni turlicha keltiradi." },
+  { f: "Inson ko'zi 10 million rang farqlay oladi",                              j: true,  izoh: "To'g'ri! Ko'z 10 million nuansni (tusni) ajratadi — bu har qanday kameradan ko'proq." },
   { f: "Prokrastinatsiya — bu dangasalik",                                       j: false, izoh: "Noto'g'ri! Bu hissiy tartibsizlik — miya noqulay vazifadan qochadi. Dangasalik emas." },
   { f: "Miya og'riqni his qilmaydi",                                             j: true,  izoh: "To'g'ri! Miyada og'riq retseptorlari yo'q. Bosh og'rig'i miyani o'rab turgan to'qimalardan keladi." },
   { f: "O'rtacha inson kuniga 70,000 ta fikr o'ylaydi",                         j: true,  izoh: "To'g'ri! Va ularning 80% salbiy, 95% i kecha ham bo'lgan fikrlar." },
-  { f: "Muzika o'rganish bolalar IQ sini oshiradi",                              j: true,  izoh: "To'g'ri! Miya ikkala yarim sharini birlashtiruvchi corpus callosum kuchayadi." },
+  { f: "Musiqa o'rganish bolalar IQ sini oshiradi",                              j: true,  izoh: "To'g'ri! Miya ikkala yarim sharini birlashtiruvchi corpus callosum kuchayadi." },
   { f: "Katta odamlar ham yangi neyronlar o'stirishi mumkin",                    j: true,  izoh: "To'g'ri! Bu 'neyrogenez' deyiladi. Sport, o'rganish va uyqu uni tezlashtiradi." },
   { f: "Birinchi taassurot 7 soniyada shakllanadi",                              j: true,  izoh: "To'g'ri! Miya 7 soniyada odamni baholaydi. Iltifot va ko'z aloqasi hal qiluvchi." },
   // Tabiat va fizika
   { f: "Sof suv har doim 0°C da muzlaydi",                                      j: false, izoh: "Noto'g'ri! Sof suv -48°C gacha suyuq qolishi mumkin — bu 'superkooling' hodisasi." },
-  { f: "Chaqmoq hech qachon bir joyga ikki marta tushmaydi",                    j: false, izoh: "Noto'g'ri! Chaqmoq ko'pincha bir joyga qayta-qayta tushadi (Efel minorasi yiliga 300 marta)." },
+  { f: "Chaqmoq hech qachon bir joyga ikki marta tushmaydi",                    j: false, izoh: "Noto'g'ri! Chaqmoq ko'pincha bir joyga qayta-qayta tushadi — baland binolar va minoralarga har yili necha marta uradi." },
   { f: "Quyosh nurining Yerga yetishi uchun 8 daqiqa kerak",                    j: true,  izoh: "To'g'ri! Yorug'lik sekundiga 300,000 km — Quyoshdan Yerga 8 daqiqa 20 soniya ketadi." },
   { f: "Suv issiqligi o'tkazmaydi",                                              j: false, izoh: "Noto'g'ri! Suv issiqlikni yaxshi o'tkazadi — shuning uchun sovuq suvda tez muzlaysiz." },
   { f: "Yer quyosh atrofida aylanganda tezligi o'zgarmaydi",                    j: false, izoh: "Noto'g'ri! Yer quyoshga yaqin bo'lgan paytda (yanvar) tezroq aylanadi — Kepler qonuni." },
   // Psixologiya
-  { f: "Inson bir vaqtda ikkita ishni baravarbajara oladi",                     j: false, izoh: "Noto'g'ri! Miya bir vaqtda bitta ishni bajaradi — multitasking aslida tez almashinuvdir." },
+  { f: "Inson bir vaqtda ikkita ishni baravar bajara oladi",                     j: false, izoh: "Noto'g'ri! Miya bir vaqtda bitta ishni bajaradi — multitasking aslida tez almashinuvdir." },
   { f: "Xotira surat kabi aniq saqlanadi",                                       j: false, izoh: "Noto'g'ri! Xotira har eslaganda qayta quriladi va o'zgarishi mumkin — u videokamera emas." },
   { f: "Yolg'onchi ko'zlarini chapga qaratadi",                                  j: false, izoh: "Noto'g'ri! Bu mif. Ko'z harakati yolg'onni aniqlamaydi — tadqiqotlar buni isbotlagan." },
   { f: "Ijobiy fikrlash salomatlikka ta'sir qiladi",                             j: true,  izoh: "To'g'ri! Optimistlar yurak xastaligi riskini 35% kamaytiradi va uzoqroq yashaydi." },
-  { f: "Inson 3 kun uqusiz yashay oladi",                                       j: false, izoh: "Noto'g'ri! Inson hatto 11 kun (rekord) uqusiz turgan. Lekin 3-4 kunda hallusinatsiyalar boshlanadi." },
+  { f: "Inson uyqusiz ko'pi bilan 3 kun yashay oladi",                                       j: false, izoh: "Noto'g'ri! Rekord — 11 kun uyqusiz turish. Lekin 3-4 kundayoq gallyutsinatsiyalar boshlanadi." },
   // Qiziq faktlar
-  { f: "Inson terisi hayoti davomida 1000 marta yangilanadi",                   j: false, izoh: "Noto'g'ri! Aslida tashqi qatlamimiz taxminan 2-4 haftada yangilanadi — hayot davomida ~1000 marta." },
+  { f: "Inson terisining tashqi qatlami umr davomida ~1000 marta yangilanadi",                   j: true,  izoh: "To'g'ri! Tashqi teri qatlami har 2-4 haftada yangilanadi — bu umr davomida ~1000 martaga to'g'ri keladi." },
   { f: "Baliqlar hech qachon uxlamaydi",                                         j: false, izoh: "Noto'g'ri! Baliqlar uxlaydi — lekin ko'zlari yumilmaydi. Ko'pchiligi juda sekin suzib dam oladi." },
-  { f: "Oʻrgimchak hasharot hisoblanadi",                                        j: false, izoh: "Noto'g'ri! O'rgimchak — araknid (8 oyoqli). Hasharotlar 6 oyoqli." },
-  { f: "Inson tishi umr davomida faqat 2 marta o'ynaydi (sut va doimiy)",       j: true,  izoh: "To'g'ri! Shuning uchun doimiy tishlarni asrash juda muhim — uchinchi martasi yo'q." },
-  { f: "Yiqilish tushida odamlar hech qachon erga tegmaydi",                    j: false, izoh: "Noto'g'ri! Ko'p odamlar tushda erga tegib, uyg'onib ketishlarini aytishadi." },
+  { f: "O'rgimchak hasharot hisoblanadi",                                        j: false, izoh: "Noto'g'ri! O'rgimchak — araknid (8 oyoqli). Hasharotlar 6 oyoqli." },
+  { f: "Inson tishi umr davomida faqat 2 marta o'sadi (sut va doimiy)",       j: true,  izoh: "To'g'ri! Shuning uchun doimiy tishlarni asrash juda muhim — uchinchi martasi yo'q." },
+  { f: "Yiqilish tushida odamlar hech qachon yerga tegmaydi",                    j: false, izoh: "Noto'g'ri! Ko'p odamlar tushda yerga tegib, uyg'onib ketishlarini aytishadi." },
   // O'zbekiston va madaniyat
   { f: "Samarqand O'zbekistonning poytaxti bo'lgan",                            j: true,  izoh: "To'g'ri! Amir Temur davrida va keyinchalik Samarqand poytaxt bo'lgan." },
   { f: "O'zbekiston Markaziy Osiyoning eng ko'p aholili davlati",               j: true,  izoh: "To'g'ri! 37+ million aholi bilan O'zbekiston Markaziy Osiyoning eng aholi ko'p davlati." },
-  { f: "Registon maydoni 3 ta madrasadan iborat",                               j: true,  izoh: "To'g'ri! Ulugbek, Sherdor va Tillakori madrasalari — hammasi 17-asrda qurilgan." },
+  { f: "Registon maydoni 3 ta madrasadan iborat",                               j: true,  izoh: "To'g'ri! Ulug'bek, Sherdor va Tillakori madrasalari — Ulug'bek madrasasi 15-asrda, qolgan ikkitasi 17-asrda qurilgan." },
+  // Qo'shimcha faktlar — yangi savollar
+  { f: "Asal hech qachon buzilmaydi",                                            j: true,  izoh: "To'g'ri! Past namlik va tabiiy kislotalik tufayli asal yillab saqlanadi — Misr piramidalaridan topilgani hali yeyishga yaroqli bo'lgan." },
+  { f: "Sakkizoyoqning uchta yuragi bor",                                        j: true,  izoh: "To'g'ri! Ikkitasi jabralarga, bittasi esa butun tanaga qon haydaydi." },
+  { f: "Banan botanika nuqtai nazaridan reza meva (yagoda) hisoblanadi",         j: true,  izoh: "To'g'ri! Botanikada banan — reza meva, qulupnay esa emas." },
+  { f: "Yashin kanali Quyosh yuzasidan ham issiqroq",                            j: true,  izoh: "To'g'ri! Yashin ~30 000°C gacha qiziydi, Quyosh yuzasi esa atigi ~5500°C." },
+  { f: "Ko'rshapalak — ucha oladigan yagona sutemizuvchi",                       j: true,  izoh: "To'g'ri! Boshqa 'uchar' hayvonlar (masalan, uchar sincap) faqat sirpanadi, haqiqatda uchmaydi." },
+  { f: "Tuyaning o'rkachida suv saqlanadi",                                      j: false, izoh: "Noto'g'ri! O'rkachda yog' saqlanadi — u energiya zaxirasi vazifasini bajaradi." },
+  { f: "Kosmik bo'shliqda ovoz tarqalmaydi",                                     j: true,  izoh: "To'g'ri! Ovozga muhit (havo) kerak. Kosmos deyarli bo'shliq, shuning uchun u yerda sukunat hukmron." },
+  { f: "Qizil rang buqani g'azablantiradi",                                      j: false, izoh: "Noto'g'ri! Buqalar ranglarni yaxshi ajratmaydi — ularni matoning harakati qo'zg'atadi." },
+  { f: "Buyuk Xitoy devori kosmosdan oddiy ko'z bilan ko'rinadi",                j: false, izoh: "Noto'g'ri! Devor juda tor — kosmosdan oddiy ko'z bilan ko'rinmaydi. Bu mashhur mif." },
+  { f: "Akulaning suyagi yo'q, skeleti tog'aydan iborat",                        j: true,  izoh: "To'g'ri! Tog'ay skelet akulani yengil va tezkor qiladi." },
+  { f: "Ba'zi chumolilar o'z vaznidan o'nlab marta og'ir yukni ko'tara oladi",   j: true,  izoh: "To'g'ri! Ayrim turlari o'z vaznidan 50 baravargacha og'ir yukni ko'tarishi mumkin." },
+  { f: "Yer yuzasining yarmidan ko'pi suv bilan qoplangan",                      j: true,  izoh: "To'g'ri! Yer yuzasining qariyb 71% i suv bilan qoplangan." },
+  { f: "Oydagi tortishish kuchi Yerdagidan kuchliroq",                           j: false, izoh: "Noto'g'ri! Oyda tortishish ~6 baravar kuchsizroq — shuning uchun u yerda yengil sakraysiz." },
+  { f: "Asalni ishchi arilar tayyorlaydi, ona ari emas",                         j: true,  izoh: "To'g'ri! Ona ari faqat tuxum qo'yadi; asalni ishchi arilar ishlab chiqaradi." },
+  { f: "Inson yuragi bir kunda taxminan 100 000 marta uradi",                    j: true,  izoh: "To'g'ri! O'rtacha yurak daqiqasiga ~70 marta, kuniga ~100 000 marta uradi." },
+  { f: "Barmoq izlari noyob — hatto egizaklarda ham har xil bo'ladi",            j: true,  izoh: "To'g'ri! Bir xil egizaklarda DNK bir xil bo'lsa-da, barmoq izlari har xil bo'ladi." },
+  { f: "Asalarilar bir-biriga maxsus raqs orqali xabar beradi",                  j: true,  izoh: "To'g'ri! 'Silkinish raqsi' orqali ari gulning yo'nalishi va masofasini bildiradi." },
+  { f: "Tovush yorug'likdan tezroq tarqaladi",                                   j: false, izoh: "Noto'g'ri! Yorug'lik ancha tez — shuning uchun chaqmoqni momaqaldiroqdan oldin ko'rasiz." },
 ];
 
 let hhIndex = 0, hhTogri = 0, hhSavollar = [];
@@ -1236,9 +1322,9 @@ function hayoyoNatija() {
   if (vsubEl) vsubEl.textContent = verd.s;
   haptic('medium');
   S.games++; S.hayoyo++;
-  addXP(hhTogri * 3); badge('gamer');
+  addXP(hhTogri * 2); badge('gamer');
   if (S.hayoyo >= 5) badge('hayoyo5');
-  showToast(`🧪 ${hhTogri}/${hhSavollar.length} to'g'ri! +${hhTogri * 3} XP`);
+  showToast(`🧪 ${hhTogri}/${hhSavollar.length} to'g'ri! +${hhTogri * 2} XP`);
 }
 
 /* ══════════════════════════════════════
@@ -1264,6 +1350,312 @@ function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
 /* ══════════════════════════════════════
    ISHGA TUSHIRISH
 ══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   YANGI O'YIN 1: RANG TESTI (Stroop)
+   So'z emas — uning rangini tanlang. Xato/vaqt tugasa — o'yin tugaydi.
+══════════════════════════════════════ */
+const STROOP_RANGLAR = [
+  { n: "QIZIL",       c: '#ef4444' },
+  { n: "KO'K",        c: '#3b82f6' },
+  { n: "YASHIL",      c: '#22c55e' },
+  { n: "SARIQ",       c: '#eab308' },
+  { n: "BINAFSHA",    c: '#a855f7' },
+  { n: "TO'Q SARIQ",  c: '#f97316' },
+];
+let stTimer = null, stScore = 0, stActive = false, stInk = null;
+
+function stroopStop() { clearTimeout(stTimer); stTimer = null; stActive = false; }
+function stroopReset() {
+  stroopStop();
+  stScore = 0;
+  const sc = $('stroop-score'), res = $('stroop-result'), btn = $('stroop-btn'),
+        word = $('stroop-word'), opts = $('stroop-opts'), tf = $('stroop-timer');
+  if (sc)   sc.textContent = '0';
+  if (res)  res.style.display = 'none';
+  if (btn)  { btn.style.display = 'block'; btn.textContent = '🎨 Boshlash'; }
+  if (word) { word.textContent = 'Tayyormisiz?'; word.style.color = 'var(--text)'; }
+  if (opts) opts.innerHTML = '';
+  if (tf)   { tf.style.transition = 'none'; tf.style.width = '100%'; }
+}
+function stroopBoshlash() {
+  haptic('light');
+  stScore = 0; stActive = true;
+  const sc = $('stroop-score'), res = $('stroop-result'), btn = $('stroop-btn');
+  if (sc)  sc.textContent = '0';
+  if (res) res.style.display = 'none';
+  if (btn) btn.style.display = 'none';
+  stroopSavol();
+}
+function stroopSavol() {
+  if (!stActive) return;
+  const word = $('stroop-word'), opts = $('stroop-opts'), tf = $('stroop-timer');
+  const textColor = STROOP_RANGLAR[Math.floor(Math.random() * STROOP_RANGLAR.length)];
+  let ink = STROOP_RANGLAR[Math.floor(Math.random() * STROOP_RANGLAR.length)];
+  if (textColor === ink) ink = STROOP_RANGLAR[(STROOP_RANGLAR.indexOf(ink) + 1) % STROOP_RANGLAR.length];
+  stInk = ink;
+  if (word) { word.textContent = textColor.n; word.style.color = ink.c; }
+  const choices = [ink];
+  while (choices.length < 4) {
+    const r = STROOP_RANGLAR[Math.floor(Math.random() * STROOP_RANGLAR.length)];
+    if (!choices.includes(r)) choices.push(r);
+  }
+  choices.sort(() => Math.random() - 0.5);
+  if (opts) {
+    opts.innerHTML = '';
+    choices.forEach(col => {
+      const b = document.createElement('button');
+      b.className = 'stroop-swatch';
+      b.style.background = col.c;
+      b.onclick = () => stroopTanla(col);
+      opts.appendChild(b);
+    });
+  }
+  const tlim = Math.max(900, 2200 - stScore * 60);
+  if (tf) {
+    tf.style.transition = 'none'; tf.style.width = '100%';
+    void tf.offsetWidth;
+    tf.style.transition = `width ${tlim}ms linear`;
+    tf.style.width = '0%';
+  }
+  clearTimeout(stTimer);
+  stTimer = setTimeout(() => stroopTugadi('⏰ Vaqt tugadi!'), tlim);
+}
+function stroopTanla(col) {
+  if (!stActive) return;
+  if (col === stInk) {
+    stScore++;
+    haptic('light');
+    const sc = $('stroop-score'); if (sc) sc.textContent = stScore;
+    stroopSavol();
+  } else {
+    stroopTugadi("❌ Noto'g'ri rang!");
+  }
+}
+function stroopTugadi(sabab) {
+  stroopStop();
+  const res = $('stroop-result'), fin = $('stroop-final'), verd = $('stroop-verdict'),
+        word = $('stroop-word'), opts = $('stroop-opts'), btn = $('stroop-btn');
+  if (word) word.textContent = '🎨';
+  if (opts) opts.innerHTML = '';
+  if (fin)  fin.textContent = stScore;
+  if (verd) verd.textContent = `${sabab} • ` + (stScore >= 20 ? '🏆 Ajoyib!' : stScore >= 12 ? "🔥 Zo'r!" : stScore >= 6 ? '👍 Yaxshi' : 'Mashq qiling!');
+  if (res)  res.style.display = 'block';
+  if (btn)  btn.style.display = 'none';
+  const xp = Math.max(1, Math.floor(stScore / 2));
+  S.games++; addXP(xp); badge('gamer');
+  haptic('medium');
+  showToast(`🎨 ${stScore} ball! +${xp} XP`);
+}
+
+/* ══════════════════════════════════════
+   YANGI O'YIN 2: TOPQIRLIK (boshqacha emojini top)
+══════════════════════════════════════ */
+const FIND_JUFT = [
+  ['😀','😃'], ['🙂','🙃'], ['😺','😸'], ['🌕','🌝'], ['🔵','🟣'],
+  ['🟠','🟡'], ['⭐','🌟'], ['🐶','🐺'], ['🍎','🍏'], ['😎','🤓'],
+  ['👻','💀'], ['🌸','🌺'], ['🔥','✨'], ['😄','😁'], ['🤍','🩶'],
+];
+let fdTimer = null, fdScore = 0, fdActive = false;
+
+function findStop() { clearTimeout(fdTimer); fdTimer = null; fdActive = false; }
+function findReset() {
+  findStop();
+  fdScore = 0;
+  const info = $('find-info'), res = $('find-result'), btn = $('find-btn'),
+        grid = $('find-grid'), tf = $('find-timer');
+  if (info) info.textContent = 'Raund 1';
+  if (res)  res.style.display = 'none';
+  if (btn)  { btn.style.display = 'block'; btn.textContent = '🔍 Boshlash'; }
+  if (grid) grid.innerHTML = '';
+  if (tf)   { tf.style.transition = 'none'; tf.style.width = '100%'; }
+}
+function findBoshlash() {
+  haptic('light');
+  fdScore = 0; fdActive = true;
+  const res = $('find-result'), btn = $('find-btn');
+  if (res) res.style.display = 'none';
+  if (btn) btn.style.display = 'none';
+  findRaund();
+}
+function findRaund() {
+  if (!fdActive) return;
+  const info = $('find-info'), grid = $('find-grid'), tf = $('find-timer');
+  if (info) info.textContent = `Raund ${fdScore + 1}`;
+  const size = Math.min(6, 3 + Math.floor(fdScore / 2));
+  const total = size * size;
+  const oddIdx = Math.floor(Math.random() * total);
+  const juft = FIND_JUFT[Math.floor(Math.random() * FIND_JUFT.length)];
+  const flip = Math.random() < 0.5;
+  const base = flip ? juft[0] : juft[1];
+  const odd  = flip ? juft[1] : juft[0];
+  if (grid) {
+    grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    grid.style.maxWidth = (size * 50) + 'px';
+    grid.style.fontSize = (size >= 5 ? 20 : 26) + 'px';
+    grid.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+      const c = document.createElement('div');
+      c.className = 'find-cell';
+      c.textContent = (i === oddIdx) ? odd : base;
+      c.onclick = () => findTanla(i === oddIdx, c);
+      grid.appendChild(c);
+    }
+  }
+  const tlim = Math.max(1600, 5000 - fdScore * 250);
+  if (tf) {
+    tf.style.transition = 'none'; tf.style.width = '100%';
+    void tf.offsetWidth;
+    tf.style.transition = `width ${tlim}ms linear`;
+    tf.style.width = '0%';
+  }
+  clearTimeout(fdTimer);
+  fdTimer = setTimeout(() => findTugadi('⏰ Vaqt tugadi!'), tlim);
+}
+function findTanla(togri, cell) {
+  if (!fdActive) return;
+  if (togri) {
+    fdScore++;
+    haptic('light');
+    if (cell) cell.classList.add('good');
+    clearTimeout(fdTimer);
+    setTimeout(findRaund, 200);
+  } else {
+    if (cell) cell.classList.add('bad');
+    findTugadi("❌ Noto'g'ri!");
+  }
+}
+function findTugadi(sabab) {
+  findStop();
+  const res = $('find-result'), fin = $('find-final'), verd = $('find-verdict'), btn = $('find-btn');
+  if (fin)  fin.textContent = fdScore;
+  if (verd) verd.textContent = `${sabab} • ` + (fdScore >= 12 ? "🏆 Burgut ko'z!" : fdScore >= 7 ? "🔥 Zo'r!" : fdScore >= 3 ? '👍 Yaxshi' : 'Mashq qiling!');
+  if (res)  res.style.display = 'block';
+  if (btn)  btn.style.display = 'none';
+  const xp = Math.max(1, fdScore);
+  S.games++; addXP(xp); badge('gamer');
+  haptic('medium');
+  showToast(`🔍 ${fdScore} raund! +${xp} XP`);
+}
+
+/* ══════════════════════════════════════
+   YANGI O'YIN 3: TEZ TAP (5 soniyada ko'p bos)
+══════════════════════════════════════ */
+let tapTimer = null, tapN = 0, tapActive = false;
+
+function tapStop() { clearInterval(tapTimer); tapTimer = null; tapActive = false; }
+function tapReset() {
+  tapStop();
+  tapN = 0;
+  const cnt = $('tap-count'), tm = $('tap-time'), pad = $('tap-pad'),
+        res = $('tap-result'), btn = $('tap-btn');
+  if (cnt) cnt.textContent = '0';
+  if (tm)  tm.textContent = '5.0s';
+  if (pad) pad.disabled = true;
+  if (res) res.style.display = 'none';
+  if (btn) { btn.style.display = 'block'; btn.textContent = '👆 Boshlash'; }
+}
+function tapBoshlash() {
+  haptic('light');
+  tapN = 0; tapActive = true;
+  const cnt = $('tap-count'), tm = $('tap-time'), pad = $('tap-pad'),
+        res = $('tap-result'), btn = $('tap-btn');
+  if (cnt) cnt.textContent = '0';
+  if (res) res.style.display = 'none';
+  if (btn) btn.style.display = 'none';
+  if (pad) pad.disabled = false;
+  let left = 5.0;
+  if (tm) tm.textContent = left.toFixed(1) + 's';
+  clearInterval(tapTimer);
+  tapTimer = setInterval(() => {
+    left = Math.round((left - 0.1) * 10) / 10;
+    if (tm) tm.textContent = Math.max(0, left).toFixed(1) + 's';
+    if (left <= 0) tapTugadi();
+  }, 100);
+}
+function tapBos() {
+  if (!tapActive) return;
+  tapN++;
+  const cnt = $('tap-count'); if (cnt) cnt.textContent = tapN;
+  haptic('light');
+}
+function tapTugadi() {
+  tapStop();
+  const pad = $('tap-pad'), res = $('tap-result'), fin = $('tap-final'),
+        verd = $('tap-verdict'), btn = $('tap-btn');
+  if (pad) pad.disabled = true;
+  if (fin) fin.textContent = tapN;
+  if (verd) verd.textContent = `${tapN} marta • ` + (tapN >= 50 ? '🏆 Chaqmoq!' : tapN >= 35 ? '🔥 Tez!' : tapN >= 20 ? '👍 Yaxshi' : '🐢 Sekinroq');
+  if (res) res.style.display = 'block';
+  if (btn) { btn.style.display = 'block'; btn.textContent = '↩ Qaytadan'; }
+  const xp = Math.max(1, Math.floor(tapN / 12));
+  S.games++; addXP(xp); badge('gamer');
+  haptic('medium');
+  showToast(`👆 ${tapN} marta! +${xp} XP`);
+}
+
+/* ══════════════════════════════════════
+   YANGI O'YIN 4: NISHONGA OL (tez bos, ulgurmasang tugaydi)
+══════════════════════════════════════ */
+let tgTimer = null, tgScore = 0, tgActive = false;
+
+function targetStop() {
+  clearTimeout(tgTimer); tgTimer = null; tgActive = false;
+  const a = $('target-area'); if (a) a.innerHTML = '';
+}
+function targetReset() {
+  targetStop();
+  tgScore = 0;
+  const sc = $('target-score'), res = $('target-result'), btn = $('target-btn');
+  if (sc)  sc.textContent = '0';
+  if (res) res.style.display = 'none';
+  if (btn) { btn.style.display = 'block'; btn.textContent = '🎯 Boshlash'; }
+}
+function targetBoshlash() {
+  haptic('light');
+  tgScore = 0; tgActive = true;
+  const sc = $('target-score'), res = $('target-result'), btn = $('target-btn');
+  if (sc)  sc.textContent = '0';
+  if (res) res.style.display = 'none';
+  if (btn) btn.style.display = 'none';
+  targetSpawn();
+}
+function targetSpawn() {
+  if (!tgActive) return;
+  const area = $('target-area');
+  if (!area) return;
+  area.innerHTML = '';
+  const dot = document.createElement('div');
+  dot.className = 'target-dot';
+  dot.textContent = '🎯';
+  const aw = area.clientWidth || 300, ah = area.clientHeight || 280, sz = 56;
+  dot.style.left = Math.random() * Math.max(0, aw - sz) + 'px';
+  dot.style.top  = Math.random() * Math.max(0, ah - sz) + 'px';
+  dot.onclick = () => {
+    if (!tgActive) return;
+    tgScore++;
+    haptic('light');
+    const sc = $('target-score'); if (sc) sc.textContent = tgScore;
+    clearTimeout(tgTimer);
+    targetSpawn();
+  };
+  area.appendChild(dot);
+  const life = Math.max(480, 1100 - tgScore * 35);
+  clearTimeout(tgTimer);
+  tgTimer = setTimeout(() => targetTugadi('⏰ Ulgurmadingiz!'), life);
+}
+function targetTugadi(sabab) {
+  targetStop();
+  const res = $('target-result'), fin = $('target-final'), verd = $('target-verdict'), btn = $('target-btn');
+  if (fin)  fin.textContent = tgScore;
+  if (verd) verd.textContent = `${sabab} • ` + (tgScore >= 20 ? '🏆 Snayper!' : tgScore >= 12 ? "🔥 Zo'r!" : tgScore >= 6 ? '👍 Yaxshi' : 'Mashq qiling!');
+  if (res)  res.style.display = 'block';
+  if (btn)  btn.style.display = 'none';
+  const xp = Math.max(1, Math.floor(tgScore / 2));
+  S.games++; addXP(xp); badge('gamer');
+  haptic('medium');
+  showToast(`🎯 ${tgScore} ball! +${xp} XP`);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   renderRoastTarixi();
 
@@ -1271,6 +1663,9 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.nb').forEach(btn => {
     btn.addEventListener('click', () => goTo(btn.dataset.sc));
   });
+
+  /* Xush kelibsiz oynasi */
+  $('welcome-start')?.addEventListener('click', closeWelcome);
 
   /* Bosh sahifa cardlari */
   $('c-roast')?.addEventListener('click',   () => goTo('roast'));
@@ -1319,6 +1714,16 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   /* Ha/Yo'q — HTML da onclick="hayoyoJavob(true/false)" va onclick="hayoyoReset()" bor */
+
+  /* Yangi o'yinlar */
+  $('stroop-btn')?.addEventListener('click',   stroopBoshlash);
+  $('stroop-retry')?.addEventListener('click', stroopBoshlash);
+  $('find-btn')?.addEventListener('click',     findBoshlash);
+  $('find-retry')?.addEventListener('click',   findBoshlash);
+  $('tap-btn')?.addEventListener('click',      tapBoshlash);
+  $('tap-pad')?.addEventListener('click',      tapBos);
+  $('target-btn')?.addEventListener('click',   targetBoshlash);
+  $('target-retry')?.addEventListener('click', targetBoshlash);
 
   /* Boot */
   goTo('boot');

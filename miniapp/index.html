@@ -25,6 +25,29 @@
   </div>
 </div>
 
+<!-- ══ XUSH KELIBSIZ (birinchi kirishda 1 marta) ══ -->
+<div class="welcome-overlay" id="welcome">
+  <div class="welcome-card">
+    <div class="welcome-emoji">🧠</div>
+    <div class="welcome-title">MIYA.EXE nima?</div>
+    <div class="welcome-sub">Miyangizni sinaydigan, kuldiradigan va ball yig'adigan mini-app.</div>
+
+    <div class="welcome-list">
+      <div class="welcome-item"><span class="wi-em">😂</span><div><b>AI Kuldiradi</b><span>Siz haqingizda kulgili tahlil</span></div></div>
+      <div class="welcome-item"><span class="wi-em">🧠</span><div><b>IQ Test</b><span>Miyangiz qancha ishlaydi?</span></div></div>
+      <div class="welcome-item"><span class="wi-em">🎮</span><div><b>O'yinlar</b><span>O'ynang va ball yig'ing</span></div></div>
+      <div class="welcome-item"><span class="wi-em">🏆</span><div><b>Reyting</b><span>Boshqalar bilan raqobatlashing</span></div></div>
+    </div>
+
+    <div class="welcome-how">
+      <b>Qanday ishlaydi?</b><br>
+      Har bir narsadan <b>XP</b> olasiz → <b>daraja</b> ko'tariladi → <b>reytingda</b> yuqoriga chiqasiz.
+    </div>
+
+    <button class="welcome-btn" id="welcome-start">🚀 Boshlash</button>
+  </div>
+</div>
+
 <!-- ══ BOSH SAHIFA ══ -->
 <div class="screen" id="home">
   <div class="topbar">
@@ -69,7 +92,7 @@
         <div class="feat-desc">Miyangiz qancha ishlaydi?</div>
       </div>
       <div class="feat f-green" id="c-games">
-        <div class="feat-badge b-new">🎮 5 ta</div>
+        <div class="feat-badge b-new">🎮 10 ta</div>
         <div class="feat-em">🎯</div>
         <div class="feat-name">O'yinlar</div>
         <div class="feat-desc">Ball yig'ing va daraja oling</div>
@@ -113,6 +136,18 @@
       <div class="pill" onclick="openGame('hayoyo')">
         <span class="pill-em">🤔</span><span class="pill-txt">Ha/Yo'q</span>
       </div>
+      <div class="pill" onclick="openGame('stroop')">
+        <span class="pill-em">🎨</span><span class="pill-txt">Rang</span>
+      </div>
+      <div class="pill" onclick="openGame('find')">
+        <span class="pill-em">🔍</span><span class="pill-txt">Topqir</span>
+      </div>
+      <div class="pill" onclick="openGame('tap')">
+        <span class="pill-em">👆</span><span class="pill-txt">Tez tap</span>
+      </div>
+      <div class="pill" onclick="openGame('target')">
+        <span class="pill-em">🎯</span><span class="pill-txt">Nishon</span>
+      </div>
     </div>
 
   </div>
@@ -122,7 +157,7 @@
 <div class="screen" id="roast">
   <div class="topbar">
     <div class="topbar-title">😂 AI Kuldiradi</div>
-    <div class="chip chip-xp">+20 ball</div>
+    <div class="chip chip-xp">+10 ball</div>
   </div>
   <div class="scroll">
     <div class="roast-hero" id="roast-idle">
@@ -160,7 +195,7 @@
 <div class="screen" id="iq">
   <div class="topbar">
     <div class="topbar-title">🧠 IQ Test</div>
-    <div class="chip chip-xp">+30 ball</div>
+    <div class="chip chip-xp">+15 ball</div>
   </div>
   <div class="scroll">
 
@@ -244,7 +279,7 @@
     <div class="games-grid">
 
       <div class="game-card" onclick="openGame('reflex')">
-        <div class="gc-xp">+15 ball</div>
+        <div class="gc-xp">+ball</div>
         <div class="gc-em">⚡</div>
         <div class="gc-nm">Reflex testi</div>
         <div class="gc-ds">Yashil bo'lganda — bos! Vaqtingiz o'lchanadi</div>
@@ -252,7 +287,7 @@
       </div>
 
       <div class="game-card" onclick="openGame('memory')">
-        <div class="gc-xp">+20 ball</div>
+        <div class="gc-xp">+ball</div>
         <div class="gc-em">🧩</div>
         <div class="gc-nm">Xotira o'yini</div>
         <div class="gc-ds">Yongan katakchalarni eslab qoling</div>
@@ -260,7 +295,7 @@
       </div>
 
       <div class="game-card" onclick="openGame('roulette')">
-        <div class="gc-xp">+10 ball</div>
+        <div class="gc-xp">+ball</div>
         <div class="gc-em">🎰</div>
         <div class="gc-nm">Baxt g'ildiragi</div>
         <div class="gc-ds">Aylantiring — nima chiqishini bilmaysiz!</div>
@@ -268,7 +303,7 @@
       </div>
 
       <div class="game-card" onclick="openGame('math')">
-        <div class="gc-xp">+25 ball</div>
+        <div class="gc-xp">+ball</div>
         <div class="gc-em">🔢</div>
         <div class="gc-nm">Tez hisob</div>
         <div class="gc-ds">10 ta misol — 3 soniya. Uddalay olasizmi?</div>
@@ -276,7 +311,7 @@
       </div>
 
       <div class="game-card" onclick="openGame('npc')">
-        <div class="gc-xp">+20 ball</div>
+        <div class="gc-xp">+ball</div>
         <div class="gc-em">🤖</div>
         <div class="gc-nm">NPC testmi?</div>
         <div class="gc-ds">Siz "robot kabi" yashayapsizmi? Tekshiring</div>
@@ -284,11 +319,43 @@
       </div>
 
       <div class="game-card" onclick="openGame('hayoyo')">
-        <div class="gc-xp">+20 ball</div>
+        <div class="gc-xp">+ball</div>
         <div class="gc-em">🤔</div>
         <div class="gc-nm">Ha yoki Yo'q</div>
         <div class="gc-ds">Psixologiya faktlari — to'g'ri yoki noto'g'ri?</div>
         <div class="gc-bar teal"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('stroop')">
+        <div class="gc-xp">🆕 +ball</div>
+        <div class="gc-em">🎨</div>
+        <div class="gc-nm">Rang testi</div>
+        <div class="gc-ds">Yozuvni emas — RANGni tanlang. Xato — tugadi!</div>
+        <div class="gc-bar purple"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('find')">
+        <div class="gc-xp">🆕 +ball</div>
+        <div class="gc-em">🔍</div>
+        <div class="gc-nm">Topqirlik</div>
+        <div class="gc-ds">Boshqacha emojini toping. Har raund qiyinroq</div>
+        <div class="gc-bar blue"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('tap')">
+        <div class="gc-xp">🆕 +ball</div>
+        <div class="gc-em">👆</div>
+        <div class="gc-nm">Tez tap</div>
+        <div class="gc-ds">5 soniyada qancha bosasiz?</div>
+        <div class="gc-bar yellow"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('target')">
+        <div class="gc-xp">🆕 +ball</div>
+        <div class="gc-em">🎯</div>
+        <div class="gc-nm">Nishonga ol</div>
+        <div class="gc-ds">Nishon chiqqanda tez bosing. Ulgurmasangiz — tugadi</div>
+        <div class="gc-bar red"></div>
       </div>
 
     </div>
@@ -566,6 +633,85 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- STROOP (Rang testi) MODAL -->
+<div class="modal" id="modal-stroop">
+  <div class="modal-header">
+    <div class="modal-title">🎨 Rang testi</div>
+    <button class="modal-close" onclick="closeGame('stroop')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub" id="stroop-sub">Yozuvni emas — uning RANGini tanlang!</div>
+    <div class="stroop-score" id="stroop-score">0</div>
+    <div class="stroop-timer-wrap"><div class="stroop-timer-fill" id="stroop-timer"></div></div>
+    <div class="stroop-word" id="stroop-word">QIZIL</div>
+    <div class="stroop-opts" id="stroop-opts"></div>
+    <div id="stroop-result" style="display:none;text-align:center;width:100%">
+      <div class="math-score-big" id="stroop-final">0</div>
+      <div style="font-size:16px;color:var(--text2);font-weight:600;margin-bottom:12px" id="stroop-verdict"></div>
+      <button class="btn btn-outline" id="stroop-retry">↩ Qaytadan</button>
+    </div>
+    <button class="btn btn-purple" id="stroop-btn">🎨 Boshlash</button>
+  </div>
+</div>
+
+<!-- TOPQIRLIK (odd one out) MODAL -->
+<div class="modal" id="modal-find">
+  <div class="modal-header">
+    <div class="modal-title">🔍 Topqirlik</div>
+    <button class="modal-close" onclick="closeGame('find')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub" id="find-sub">Boshqacha bo'lganini toping!</div>
+    <div class="stroop-score" id="find-info">Raund 1</div>
+    <div class="stroop-timer-wrap"><div class="stroop-timer-fill" id="find-timer"></div></div>
+    <div class="find-grid" id="find-grid"></div>
+    <div id="find-result" style="display:none;text-align:center;width:100%">
+      <div class="math-score-big" id="find-final">0</div>
+      <div style="font-size:16px;color:var(--text2);font-weight:600;margin-bottom:12px" id="find-verdict"></div>
+      <button class="btn btn-outline" id="find-retry">↩ Qaytadan</button>
+    </div>
+    <button class="btn btn-purple" id="find-btn">🔍 Boshlash</button>
+  </div>
+</div>
+
+<!-- TEZ TAP MODAL -->
+<div class="modal" id="modal-tap">
+  <div class="modal-header">
+    <div class="modal-title">👆 Tez tap</div>
+    <button class="modal-close" onclick="closeGame('tap')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub" id="tap-sub">5 soniyada qancha marta bosa olasiz?</div>
+    <div class="tap-count" id="tap-count">0</div>
+    <div class="tap-time" id="tap-time">5.0s</div>
+    <button class="tap-pad" id="tap-pad">BOSING!</button>
+    <div id="tap-result" style="display:none;text-align:center;width:100%">
+      <div class="math-score-big" id="tap-final">0</div>
+      <div style="font-size:16px;color:var(--text2);font-weight:600;margin-bottom:12px" id="tap-verdict"></div>
+    </div>
+    <button class="btn btn-purple" id="tap-btn">👆 Boshlash</button>
+  </div>
+</div>
+
+<!-- NISHONGA OL MODAL -->
+<div class="modal" id="modal-target">
+  <div class="modal-header">
+    <div class="modal-title">🎯 Nishonga ol</div>
+    <button class="modal-close" onclick="closeGame('target')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub" id="target-sub">Nishon chiqqanda tez bosing!</div>
+    <div class="stroop-score" id="target-score">0</div>
+    <div class="target-area" id="target-area"></div>
+    <div id="target-result" style="display:none;text-align:center;width:100%">
+      <div class="math-score-big" id="target-final">0</div>
+      <div style="font-size:16px;color:var(--text2);font-weight:600;margin-bottom:12px" id="target-verdict"></div>
+      <button class="btn btn-outline" id="target-retry">↩ Qaytadan</button>
+    </div>
+    <button class="btn btn-purple" id="target-btn">🎯 Boshlash</button>
   </div>
 </div>
 

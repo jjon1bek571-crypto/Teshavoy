@@ -1702,3 +1702,221 @@ hr.div {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ══ XUSH KELIBSIZ OYNASI ══ */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(30, 41, 59, 0.55);
+  backdrop-filter: blur(4px);
+}
+.welcome-overlay.open { display: flex; }
+.welcome-card {
+  width: 100%;
+  max-width: 360px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 26px 22px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(124, 58, 237, 0.25);
+  animation: welcomePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes welcomePop {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.welcome-emoji {
+  font-size: 52px;
+  display: block;
+  margin-bottom: 6px;
+  animation: welcomeBrain 2.5s ease-in-out infinite;
+}
+@keyframes welcomeBrain {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+}
+.welcome-title { font-size: 22px; font-weight: 800; color: var(--text); }
+.welcome-sub {
+  font-size: 14px;
+  color: var(--text2);
+  margin: 8px 0 18px;
+  line-height: 1.5;
+}
+.welcome-list { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+.welcome-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--purple-pale);
+  border-radius: 14px;
+  padding: 11px 13px;
+}
+.welcome-item .wi-em { font-size: 24px; }
+.welcome-item b { display: block; font-size: 14px; color: var(--text); }
+.welcome-item span { font-size: 12px; color: var(--text2); }
+.welcome-how {
+  margin: 16px 0 18px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+  background: #f1f5f9;
+  border-radius: 14px;
+  padding: 13px 14px;
+}
+.welcome-how b { color: var(--purple); }
+.welcome-btn {
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--purple), var(--purple-light));
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.welcome-btn:active { transform: scale(0.97); }
+
+/* ══ YANGI O'YINLAR (umumiy) ══ */
+.stroop-score {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--purple);
+  text-align: center;
+  margin-bottom: 8px;
+}
+.stroop-timer-wrap {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.stroop-timer-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--purple-light));
+  border-radius: 6px;
+}
+
+/* ── Rang testi (Stroop) ── */
+.stroop-word {
+  font-size: 46px;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 1px;
+  margin: 6px 0 22px;
+  min-height: 56px;
+  user-select: none;
+}
+.stroop-opts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+.stroop-swatch {
+  height: 64px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  transition: transform 0.08s;
+}
+.stroop-swatch:active { transform: scale(0.94); }
+
+/* ── Topqirlik ── */
+.find-grid {
+  display: grid;
+  gap: 7px;
+  width: 100%;
+  margin-bottom: 8px;
+  justify-content: center;
+}
+.find-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--purple-pale);
+  border-radius: 12px;
+  aspect-ratio: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s, background 0.15s;
+}
+.find-cell:active { transform: scale(0.9); }
+.find-cell.bad { background: #fee2e2; }
+.find-cell.good { background: #dcfce7; }
+
+/* ── Tez tap ── */
+.tap-count {
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--purple);
+  text-align: center;
+  line-height: 1;
+}
+.tap-time {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text2);
+  text-align: center;
+  margin: 4px 0 16px;
+}
+.tap-pad {
+  width: 100%;
+  height: 170px;
+  border: none;
+  border-radius: 22px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--purple), var(--purple-light));
+  box-shadow: 0 10px 26px rgba(124, 58, 237, 0.4);
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 8px;
+  transition: transform 0.05s;
+}
+.tap-pad:active { transform: scale(0.96); }
+.tap-pad:disabled { opacity: 0.5; background: #cbd5e1; box-shadow: none; }
+
+/* ── Nishonga ol ── */
+.target-area {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  background: var(--purple-pale);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.target-dot {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fca5a5, #dc2626);
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  cursor: pointer;
+  animation: targetPop 0.15s ease-out;
+}
+@keyframes targetPop {
+  from { transform: scale(0.3); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}

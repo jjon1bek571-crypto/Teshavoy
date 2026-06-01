@@ -1,24 +1,23 @@
 /* ============================================================
-   MIYA.EXE — Reyting tizimi (umumiy ombor)
+   MIYA.EXE — Reyting tizimi (umumiy ombor: kvdb.io)
    Barcha qurilmalardagi HAQIQIY foydalanuvchilar ko'rinadi.
-   jsonblob.com — bepul, signupsiz umumiy saqlash.
+   kvdb.io — bepul, CORS QO'LLAYDI (jsonblob'dan farqli), server kerak emas.
    ============================================================ */
 
-const STORE_URL = 'https://jsonblob.com/api/jsonBlob/019e7d5d-77b4-7629-9ab1-b82918fd084b';
+// Bu bucket allaqachon yaratilgan (sizning email'ingizga bog'langan).
+const KVDB_BUCKET = '4V8vD9NVepxA5unu7hCv2y';
+const STORE_URL   = `https://kvdb.io/${KVDB_BUCKET}/users`;
 
 /* ── Reytingni umumiy ombordan olish ── */
 async function fbGetLeaderboard() {
   try {
-    const res = await fetch(STORE_URL, {
-      headers: { 'Accept': 'application/json' },
-      cache: 'no-store',
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const users = data.users || {};
+    const res = await fetch(STORE_URL, { cache: 'no-store' });
+    if (!res.ok) return null;                   // 404 = ombor hali bo'sh
+    const text  = await res.text();
+    const users = text ? JSON.parse(text) : {};
     return Object.entries(users)
       .map(([uid, v]) => ({ user_id: uid, ...v }))
-      .filter(u => u.name && typeof u.xp === 'number')
+      .filter(u => u && u.name && typeof u.xp === 'number')
       .sort((a, b) => b.xp - a.xp)
       .slice(0, 30);
   } catch {
@@ -35,17 +34,18 @@ async function fbSaveUser(uid, data) {
 }
 
 async function _doSave(uid, data) {
+  if (!uid) return;
   try {
     // 1. Joriy holatni o'qiymiz
-    const res = await fetch(STORE_URL, {
-      headers: { 'Accept': 'application/json' },
-      cache: 'no-store',
-    });
-    const store = res.ok ? await res.json() : { users: {} };
-    if (!store.users) store.users = {};
+    const res = await fetch(STORE_URL, { cache: 'no-store' });
+    let store = {};
+    if (res.ok) {
+      const t = await res.text();
+      store = t ? JSON.parse(t) : {};
+    }
 
     // 2. O'z yozuvimizni qo'shamiz/yangilaymiz
-    store.users[uid] = {
+    store[uid] = {
       name:  data.name,
       xp:    data.xp,
       level: data.level,
@@ -53,10 +53,10 @@ async function _doSave(uid, data) {
     };
 
     // 3. Faqat eng faol 200 ta foydalanuvchini saqlaymiz
-    const entries = Object.entries(store.users)
+    const entries = Object.entries(store)
       .sort((a, b) => (b[1].xp || 0) - (a[1].xp || 0))
       .slice(0, 200);
-    store.users = Object.fromEntries(entries);
+    store = Object.fromEntries(entries);
 
     // 4. Qaytarib yozamiz
     await fetch(STORE_URL, {
