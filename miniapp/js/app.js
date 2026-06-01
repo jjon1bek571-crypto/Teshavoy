@@ -244,6 +244,66 @@ function claimQuest(id) {
   haptic('medium');
   showToast(`✅ Vazifa bajarildi! +${def.reward} XP`);
   renderQuests();
+  renderSpin();
+}
+
+/* ══════════════════════════════════════
+   KUNLIK SPIN (kuniga 1 marta, kichik variable XP)
+══════════════════════════════════════ */
+const SPIN_REWARDS = [
+  { xp: 5,  w: 30 }, { xp: 10, w: 28 }, { xp: 15, w: 20 },
+  { xp: 20, w: 12 }, { xp: 25, w: 7 },  { xp: 50, w: 3 },   // 50 = jackpot (kam)
+];
+let _spinning = false;
+
+function spinUsedToday() { return ls.get('lastSpin') === new Date().toDateString(); }
+
+function renderSpin() {
+  const card = $('spin-card'), title = $('spin-title'), sub = $('spin-sub'), em = $('spin-emoji');
+  if (!card) return;
+  if (spinUsedToday()) {
+    card.classList.add('done');
+    if (title) title.textContent = 'Bugungi spin ishlatilgan';
+    if (sub)   sub.textContent   = 'Ertaga yana bepul spin 🎁';
+    if (em)    em.textContent     = '✅';
+  } else {
+    card.classList.remove('done');
+    if (title) title.textContent = 'Kunlik spin — BEPUL!';
+    if (sub)   sub.textContent   = 'Bugungi omadingizni sinang 🍀';
+    if (em)    em.textContent     = '🎡';
+  }
+}
+
+function pickSpin() {
+  const total = SPIN_REWARDS.reduce((a, r) => a + r.w, 0);
+  let r = Math.random() * total;
+  for (const s of SPIN_REWARDS) { if ((r -= s.w) <= 0) return s.xp; }
+  return 5;
+}
+
+async function dailySpin() {
+  if (_spinning) return;
+  if (spinUsedToday()) { showToast('🎁 Ertaga yana bepul spin!'); haptic('light'); return; }
+  _spinning = true;
+  const em = $('spin-emoji'), title = $('spin-title'), sub = $('spin-sub');
+  const reward = pickSpin();
+  const pool = SPIN_REWARDS.map(s => s.xp);
+  haptic('medium');
+  if (title) title.textContent = 'Aylanmoqda...';
+  for (let i = 0; i < 16; i++) {
+    if (sub) sub.textContent = '+' + pool[Math.floor(Math.random() * pool.length)] + ' XP';
+    if (em)  em.style.transform = `rotate(${i * 120}deg) scale(1.1)`;
+    await sleep(60 + i * 9);
+  }
+  if (em) em.style.transform = '';
+  ls.set('lastSpin', new Date().toDateString());
+  addXP(reward);
+  haptic(reward >= 25 ? 'heavy' : 'medium');
+  if (title) title.textContent = reward >= 50 ? 'OMADINGIZ KULDI! 🍀' : 'Tabriklaymiz! 🎉';
+  if (sub)   sub.textContent   = reward >= 50 ? `🎉 JACKPOT +${reward} XP!` : `+${reward} XP olding!`;
+  showToast(reward >= 50 ? `🎉 JACKPOT! +${reward} XP` : `🎡 +${reward} XP!`);
+  _spinning = false;
+  setTimeout(renderSpin, 2600);
 }
 
 /* ══════════════════════════════════════
