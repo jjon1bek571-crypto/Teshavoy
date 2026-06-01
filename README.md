@@ -28,7 +28,9 @@ miya-exe/
 - 🎮 **10 ta o'yin** — Reflex, Xotira, Baxt g'ildiragi, Tez Hisob, NPC test,
   Ha/Yo'q, Rang testi (Stroop), Topqirlik, Tez tap, Nishonga ol
 - ⚡ **Bugungi savol** — har kuni yangi
-- 🏆 **Reyting** — barcha qurilmalardagi haqiqiy o'yinchilar (xavfsiz backend)
+- 🏆 **Reyting** — oylik mavsumlar + barcha vaqt (xavfsiz backend, anti-cheat)
+- 📅 **Haftalik vazifalar** + 🎡 **kunlik spin** + ⚡ **qattiq rejim** (minus ballar)
+- 👥 **Referral** — do'st chaqir, 5 ta → sovg'a qur'asi
 - 🪙 XP, daraja, badge va yashirin kodlar tizimi
 
 ## 🚀 Ishga tushirish
@@ -40,6 +42,15 @@ pip install -r requirements.txt
 # Token: muhit o'zgaruvchisi BOT_TOKEN yoki bot/secret.py
 python main.py
 ```
+
+**Referral ishlashi uchun** (Railway'da bot env'lariga qo'shing — mini app bilan
+bir xil bucket):
+| Nomi | Qiymati |
+|------|---------|
+| `KVDB_BUCKET` | mini app'dagi bilan bir xil bucket id |
+| `KVDB_SECRET` | mini app'dagi bilan bir xil secret |
+
+Botni qayta deploy qiling. Shundan keyin `/start ref<UID>` havolalari hisoblanadi.
 
 ### Mini App + backend (Vercel)
 `miniapp/` papkasini Vercel ga deploy qiling. Reyting xavfsiz ishlashi uchun
