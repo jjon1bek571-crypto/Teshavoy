@@ -1,5 +1,6 @@
 {
-  "version": 2,
-  "builds": [{ "src": "**/*", "use": "@vercel/static" }],
-  "routes": [{ "src": "/(.*)", "dest": "/$1" }]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/*.js": { "memory": 128, "maxDuration": 10 }
+  }
 }

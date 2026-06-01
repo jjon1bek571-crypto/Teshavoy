@@ -49,14 +49,21 @@
    4. REYTING TIZIMI — hech narsa qilish shart emas
 ═══════════════════════════════════════════════════
 
-   Reyting avtomatik ishlaydi (miniapp/js/firebase.js):
+   Reyting XAVFSIZ backend orqali ishlaydi:
    - Faqat HAQIQIY o'yinchilar ko'rinadi (soxta ism yo'q)
-   - Umumiy ombor: kvdb.io — BARCHA qurilmalardagi
-     o'yinchilar bir reytingda ko'rinadi
-   - Signup, parol, alohida server kerak emas
+   - BARCHA qurilmalardagi o'yinchilar bir reytingda
+   - Yozish faqat server orqali: Telegram initData HMAC bilan
+     tekshiriladi -> tashqaridan reytingni buzib bo'lmaydi
 
-   Eslatma: kvdb.io bucket ochiq (auth yo'q). Kichik loyiha
-   uchun yetarli; jiddiy ishlatishda himoyani kuchaytiring.
+   SOZLASH (bir marta) — README.md dagi "Mini App + backend"
+   bo'limiga qarang. Qisqacha:
+   1. kvdb'da maxfiy kalitli YANGI bucket yarating:
+      curl https://kvdb.io -d 'email=EMAIL' -d 'secret_key=KALIT'
+   2. Vercel env: BOT_TOKEN, KVDB_BUCKET, KVDB_SECRET
+   3. Qayta deploy.
+
+   Eslatma: ballar mijozda hisoblanadi; server cheklaydi
+   (absurd qiymatlarni rad etadi) lekin to'liq cheat-proof emas.
 
 ═══════════════════════════════════════════════════
    5. BOT ni ishga tushirish
