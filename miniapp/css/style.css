@@ -1986,3 +1986,49 @@ hr.div {
 .prize-row { padding: 5px 0; }
 .prize-row + .prize-row { border-top: 1px solid rgba(124, 58, 237, 0.12); }
 .prize-info a { color: var(--purple, #7c3aed); font-weight: 600; }
+
+/* ── 📅 Haftalik vazifalar ── */
+.quests-card {
+  margin: 0 0 14px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--card, #fff);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.quests-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 800;
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: var(--text1, #0f172a);
+}
+.quests-reset { font-size: 11px; font-weight: 600; color: var(--purple, #7c3aed); }
+.quest {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+.quest + .quest { border-top: 1px solid rgba(0,0,0,0.05); }
+.quest-em { font-size: 22px; }
+.quest-mid { flex: 1; min-width: 0; }
+.quest-nom { font-size: 13px; font-weight: 600; color: var(--text1, #0f172a); margin-bottom: 5px; }
+.quest-track { height: 6px; border-radius: 3px; background: var(--purple-pale, #f3f0ff); overflow: hidden; }
+.quest-bar { height: 100%; background: linear-gradient(90deg, #a78bfa, #7c3aed); border-radius: 3px; transition: width 0.3s; }
+.quest-act { min-width: 48px; text-align: right; }
+.quest-btn {
+  border: none;
+  background: linear-gradient(120deg, #f59e0b, #f97316);
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  animation: prizeGlow 2s ease-in-out infinite;
+}
+.quest-rw { font-size: 12px; font-weight: 700; color: var(--text3, #94a3b8); }
+.quest-ok { font-size: 18px; color: #22c55e; font-weight: 800; }
+.quest.claimed { opacity: 0.55; }

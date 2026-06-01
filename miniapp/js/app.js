@@ -176,6 +176,77 @@ function closeWelcome() {
 }
 
 /* ══════════════════════════════════════
+   HAFTALIK VAZIFALAR (mijoz tomonida, haftalik reset)
+══════════════════════════════════════ */
+function weekKey() {
+  const now = Date.now() + 5 * 3600000;              // Toshkent
+  const d = new Date(now), day = (d.getUTCDay() + 6) % 7;   // Dushanba=0
+  const mon = new Date(now - day * 86400000);
+  return `${mon.getUTCFullYear()}-${String(mon.getUTCMonth() + 1).padStart(2, '0')}-${String(mon.getUTCDate()).padStart(2, '0')}`;
+}
+function weekDaysLeft() {
+  const d = new Date(Date.now() + 5 * 3600000);
+  return 7 - ((d.getUTCDay() + 6) % 7);
+}
+function getQuests() {
+  let q = null;
+  try { q = JSON.parse(ls.get('quests') || 'null'); } catch {}
+  const wk = weekKey();
+  if (!q || q.wk !== wk) {
+    q = { wk, gamesBase: S.games, xpBase: xpTotal(), daily: 0, claim: {} };
+    ls.set('quests', JSON.stringify(q));
+  }
+  return q;
+}
+function saveQuests(q) { ls.set('quests', JSON.stringify(q)); }
+
+const QUESTS = [
+  { id: 'games', em: '🎮', nom: "10 ta o'yin o'yna",       target: 10,  reward: 25, prog: (q) => S.games - q.gamesBase },
+  { id: 'xp',    em: '⚡', nom: "150 XP to'pla",           target: 150, reward: 30, prog: (q) => xpTotal() - q.xpBase },
+  { id: 'daily', em: '📅', nom: "3 kun savolga javob ber", target: 3,   reward: 25, prog: (q) => q.daily },
+];
+
+function renderQuests() {
+  const list = $('quests-list');
+  if (!list) return;
+  const q = getQuests();
+  const resetEl = $('quests-reset');
+  if (resetEl) resetEl.textContent = `${weekDaysLeft()} kun qoldi`;
+  list.innerHTML = '';
+  QUESTS.forEach(def => {
+    const cur     = Math.max(0, Math.min(def.target, def.prog(q)));
+    const done    = cur >= def.target;
+    const claimed = !!q.claim[def.id];
+    const pct     = Math.round(cur / def.target * 100);
+    const el = document.createElement('div');
+    el.className = 'quest' + (claimed ? ' claimed' : '');
+    el.innerHTML = `
+      <div class="quest-em">${def.em}</div>
+      <div class="quest-mid">
+        <div class="quest-nom">${def.nom}</div>
+        <div class="quest-track"><div class="quest-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="quest-act">${
+        claimed ? '<span class="quest-ok">✓</span>'
+        : done  ? `<button class="quest-btn" onclick="claimQuest('${def.id}')">+${def.reward}</button>`
+        : `<span class="quest-rw">${cur}/${def.target}</span>`
+      }</div>`;
+    list.appendChild(el);
+  });
+}
+
+function claimQuest(id) {
+  const q = getQuests();
+  const def = QUESTS.find(x => x.id === id);
+  if (!def || q.claim[id] || def.prog(q) < def.target) return;
+  q.claim[id] = true; saveQuests(q);
+  addXP(def.reward);
+  haptic('medium');
+  showToast(`✅ Vazifa bajarildi! +${def.reward} XP`);
+  renderQuests();
+}
+
+/* ══════════════════════════════════════
    BOSH SAHIFA
 ══════════════════════════════════════ */
 function renderHome() {
@@ -196,6 +267,8 @@ function renderHome() {
   ];
   const statusEl = $('h-status');
   if (statusEl) statusEl.textContent = statuses[Math.floor(Date.now() / 6000) % statuses.length];
+
+  renderQuests();
 }
 
 /* ══════════════════════════════════════
@@ -685,6 +758,7 @@ function dailyJavob(btn, ch) {
   btn.classList.add('sel');
   S.lastDaily = bugun;
   S.streak++;
+  const _q = getQuests(); _q.daily = (_q.daily || 0) + 1; saveQuests(_q);  // haftalik vazifa
   addXP(ch.xp);
   if (S.streak >= 3) badge('streak3');
   if (S.streak >= 5) badge('daily5');
