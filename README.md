@@ -9,22 +9,24 @@ miya-exe/
 ├── miniapp/     # Telegram Mini App (HTML/CSS/JS) — Vercel da
 │   ├── index.html
 │   ├── css/style.css
-│   └── js/app.js, firebase.js
+│   └── js/app.js       # ilova mantiq
+│       firebase.js     # umumiy reyting (kvdb.io)
 ├── bot/         # Telegram Bot (Python aiogram) — Railway da
 │   └── main.py
-├── backend/     # FastAPI server (ixtiyoriy)
-└── shov/        # Reklama posterlari (PNG)
+├── shov/        # Reklama posterlari (PNG)
+├── backend/     # FastAPI server (ishlatilmaydi — ixtiyoriy/eski)
+└── api/         # Vercel serverless (ishlatilmaydi — reyting kvdb.io da)
 ```
 
 ## ✨ Imkoniyatlar
 
 - 😂 **AI Kuldiradi** — foydalanuvchini kulgili tahlil qiladi
 - 🧠 **IQ Test** — 60+ savol, 3 daraja qiyinlik
-- 🎮 **5 ta o'yin** — Reflex, Xotira, Ruletka, Tez Hisob, NPC test
-- 🤔 **Ha/Yo'q** — 28 ta ilmiy fakt
+- 🎮 **10 ta o'yin** — Reflex, Xotira, Baxt g'ildiragi, Tez Hisob, NPC test,
+  Ha/Yo'q, Rang testi (Stroop), Topqirlik, Tez tap, Nishonga ol
 - ⚡ **Bugungi savol** — har kuni yangi
-- 🏆 **Reyting** — barcha o'yinchilar bo'yicha
-- 🪙 XP, daraja, sovrinlar tizimi
+- 🏆 **Reyting** — barcha qurilmalardagi haqiqiy o'yinchilar (kvdb.io umumiy ombor)
+- 🪙 XP, daraja, badge va yashirin kodlar tizimi
 
 ## 🚀 Ishga tushirish
 

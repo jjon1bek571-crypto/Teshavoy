@@ -49,12 +49,14 @@
    4. REYTING TIZIMI — hech narsa qilish shart emas
 ═══════════════════════════════════════════════════
 
-   Reyting avtomatik ishlaydi:
-   - Haqiqiy foydalanuvchilar (siz o'ynaganlar) ko'rinadi
-   - Har kuni yangilanadigan Uzbek ismli o'yinchilar
-   - Hech qanday server, hech qanday signup kerak emas
+   Reyting avtomatik ishlaydi (miniapp/js/firebase.js):
+   - Faqat HAQIQIY o'yinchilar ko'rinadi (soxta ism yo'q)
+   - Umumiy ombor: kvdb.io — BARCHA qurilmalardagi
+     o'yinchilar bir reytingda ko'rinadi
+   - Signup, parol, alohida server kerak emas
 
-   Bu qurilmangizda saqlanadi va to'liq ishlaydi.
+   Eslatma: kvdb.io bucket ochiq (auth yo'q). Kichik loyiha
+   uchun yetarli; jiddiy ishlatishda himoyani kuchaytiring.
 
 ═══════════════════════════════════════════════════
    5. BOT ni ishga tushirish
