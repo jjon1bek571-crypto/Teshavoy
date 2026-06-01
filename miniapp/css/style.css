@@ -2058,3 +2058,18 @@ hr.div {
 .spin-sub   { font-size: 12px; opacity: 0.95; margin-top: 2px; }
 .spin-arrow { font-size: 22px; opacity: 0.8; }
 .spin-card.done .spin-arrow { display: none; }
+
+/* ── ⚡ Qattiq rejim chip ── */
+.chip-hard {
+  cursor: pointer;
+  background: var(--purple-pale, #f3f0ff);
+  color: var(--text2, #475569);
+  font-weight: 700;
+  user-select: none;
+  transition: all 0.18s ease;
+}
+.chip-hard.on {
+  background: linear-gradient(120deg, #f59e0b, #ef4444);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.4);
+}

@@ -133,6 +133,7 @@ function goTo(id) {
   if (id === 'daily')   renderDaily();
   if (id === 'iq')      iqReset();
   if (id === 'rating')  renderRating();
+  if (id === 'games')   renderHardChip();
 }
 
 /* ══════════════════════════════════════
@@ -347,6 +348,22 @@ function togglePrizeInfo() {
   const el = $('prize-info');
   if (el) el.classList.toggle('open');
   haptic('light');
+}
+
+/* ── Qattiq rejim: viktorina o'yinlarida noto'g'ri = -1 ball, evaziga XP ×1.5 ── */
+let hardMode = ls.get('hard') === '1';
+function renderHardChip() {
+  const c = $('hard-toggle');
+  if (!c) return;
+  c.textContent = hardMode ? '⚡ Qattiq: ON' : '⚡ Qattiq: OFF';
+  c.classList.toggle('on', hardMode);
+}
+function toggleHard() {
+  hardMode = !hardMode;
+  ls.set('hard', hardMode ? '1' : '0');
+  renderHardChip();
+  haptic('light');
+  showToast(hardMode ? "⚡ Qattiq rejim: noto'g'ri = -1 ball, XP ×1.5" : "Qattiq rejim o'chdi");
 }
 
 function seasonNomi(s) {
@@ -1287,6 +1304,7 @@ function hisobTanla(togri, btn) {
   document.querySelectorAll('#math-opts .math-opt').forEach(b => b.onclick = null);
   if (btn) btn.classList.add(togri ? 'correct' : 'wrong');
   if (togri) hTogri++;
+  else if (hardMode) hTogri = Math.max(0, hTogri - 1);   // qattiq rejim: minus
   hHozir++;
   setTimeout(hisobKorsat, 420);
 }
@@ -1308,9 +1326,9 @@ function hisobTugat() {
   if (verdEl)  verdEl.textContent   = hTogri >= 9 ? '🏆 Dahshat!' : hTogri >= 7 ? "🔥 Zo'r!" : hTogri >= 5 ? '👍 Yaxshi urinish' : '💪 Mashq qiling!';
   if (titleEl) titleEl.textContent  = `${hTogri}/10 to'g'ri`;
   haptic('medium');
-  const mxp = hTogri * GXP.mathCorrect;
+  const mxp = Math.round(hTogri * GXP.mathCorrect * (hardMode ? 1.5 : 1));
   S.games++; addXP(mxp); badge('gamer');
-  showToast(`🔢 ${hTogri}/10 to'g'ri! +${mxp} XP`);
+  showToast(`🔢 ${hTogri}/10 to'g'ri! +${mxp} XP${hardMode ? ' ⚡' : ''}`);
 }
 
 /* ── 5. NPC TESTI ── */
@@ -1482,6 +1500,7 @@ function hayoyoJavob(javob) {
   const q     = hhSavollar[hhIndex];
   const togri = javob === q.j;
   if (togri) hhTogri++;
+  else if (hardMode) hhTogri = Math.max(0, hhTogri - 1);   // qattiq rejim: minus
   const haBtn = $('hayoyo-ha'), yoqBtn = $('hayoyo-yoq');
   const fb    = $('hayoyo-feedback'), score = $('hayoyo-score-live');
   if (haBtn)  haBtn.disabled  = true;
@@ -1515,7 +1534,7 @@ function hayoyoNatija() {
   if (vsubEl) vsubEl.textContent = verd.s;
   haptic('medium');
   S.games++; S.hayoyo++;
-  const mxp = GXP.hayoyo(hhTogri);
+  const mxp = Math.round(GXP.hayoyo(hhTogri) * (hardMode ? 1.5 : 1));
   addXP(mxp); badge('gamer');
   if (S.hayoyo >= 5) badge('hayoyo5');
   showToast(`🧪 ${hhTogri}/${hhSavollar.length} to'g'ri! +${mxp} XP`);
