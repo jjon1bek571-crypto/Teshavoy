@@ -25,8 +25,10 @@ miya-exe/
 
 - 😂 **AI Kuldiradi** — foydalanuvchini kulgili tahlil qiladi
 - 🧠 **IQ Test** — 60+ savol, 3 daraja qiyinlik
-- 🎮 **10 ta o'yin** — Reflex, Xotira, Baxt g'ildiragi, Tez Hisob, NPC test,
-  Ha/Yo'q, Rang testi (Stroop), Topqirlik, Tez tap, Nishonga ol
+- 🎮 **13 ta o'yin** — Reflex, Xotira, Baxt g'ildiragi, Tez Hisob, NPC test,
+  Ha/Yo'q, Rang testi (Stroop), Topqirlik, Tez tap, Nishonga ol,
+  Schulte jadval, Sonlar ketma-ketligi, So'z yasash (anagram)
+- 🧠 **IQ test** — 100+ savollik havza (har test 5 ta tasodifiy)
 - ⚡ **Bugungi savol** — har kuni yangi
 - 🏆 **Reyting** — oylik mavsumlar + barcha vaqt (xavfsiz backend, anti-cheat)
 - 📅 **Haftalik vazifalar** + 🎡 **kunlik spin** + ⚡ **qattiq rejim** (minus ballar)
