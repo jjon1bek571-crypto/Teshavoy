@@ -2127,3 +2127,24 @@ hr.div {
 }
 .schulte-cell.done { background: linear-gradient(120deg, #34d399, #10b981); color: #fff; }
 .schulte-cell.bad  { background: #fca5a5; transform: scale(0.92); }
+
+/* ── 🔢 Sonlar ketma-ketligi ── */
+.seq-display {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 2px; font-size: 24px; font-weight: 800; color: var(--text1, #0f172a);
+  margin: 10px 0 16px; min-height: 40px;
+}
+.seq-num { padding: 2px 6px; }
+.seq-q   { color: var(--purple, #7c3aed); }
+.seq-sep { color: var(--text3, #94a3b8); }
+.seq-opts {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  width: 100%; max-width: 300px; margin: 0 auto;
+}
+.seq-opt {
+  padding: 14px; border: none; border-radius: 12px;
+  background: var(--purple-pale, #f3f0ff); color: var(--text1, #0f172a);
+  font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+}
+.seq-opt.correct { background: linear-gradient(120deg, #34d399, #10b981); color: #fff; }
+.seq-opt.wrong   { background: #fca5a5; color: #fff; }

@@ -78,6 +78,7 @@ const GXP = {
   npc:         5,
   ruletka:     (bonus)     => bonus ? bonus : 3,                                           // omad (kam)
   schulte:     (sec)       => Math.max(5, Math.min(45, Math.round((50 - sec) * 1.1))),     // tezroq -> ko'proq
+  sequence:    (score)     => Math.min(45, score * 3),                                      // har to'g'ri raund
 };
 
 /* ── XP iqtisodi (ANCHA QIYIN) ──
@@ -207,7 +208,7 @@ function saveQuests(q) { ls.set('quests', JSON.stringify(q)); }
    Omad/spam o'yinlari tor, mahorat o'yinlari saxiy. */
 const GAME_DAILY_CAP = {
   reflex: 300, memory: 300, math: 300, stroop: 300, find: 300, target: 300,
-  schulte: 300, hayoyo: 80, tap: 24, npc: 5, ruletka: 6,
+  schulte: 300, sequence: 300, hayoyo: 80, tap: 24, npc: 5, ruletka: 6,
 };
 function gameDayState() {
   let s = null;
@@ -1056,6 +1057,7 @@ function openGame(nom) {
   if (nom === 'tap')      tapReset();
   if (nom === 'target')   targetReset();
   if (nom === 'schulte')  schulteReset();
+  if (nom === 'sequence') sequenceReset();
 }
 
 function closeGame(nom) {
@@ -1067,6 +1069,7 @@ function closeGame(nom) {
   if (nom === 'tap')    tapStop();
   if (nom === 'target') targetStop();
   if (nom === 'schulte') schulteStop();
+  if (nom === 'sequence') seqStop();
 }
 
 /* ── 1. REFLEX O'YINI ── */
@@ -2054,6 +2057,137 @@ function schulteTugadi() {
   showToast(`🅰️ ${elapsed.toFixed(1)}s! +${xp} XP`);
 }
 
+/* ══════════════════════════════════════
+   YANGI O'YIN 6: SONLAR KETMA-KETLIGI (keyingi sonni top)
+══════════════════════════════════════ */
+let seqScore = 0, seqActive = false, seqAns = 0, seqTimer = null;
+
+// Raundga qarab ketma-ketlik generatsiya qiladi: {seq:[4 son], ans, options:[4]}
+function genSeq(round) {
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const types = round < 3 ? ['arith', 'arith', 'geo']
+              : round < 6 ? ['arith', 'geo', 'sq', 'addinc']
+              :             ['geo', 'addinc', 'muladd', 'sq'];
+  const type = pick(types);
+  let seq, ans;
+  if (type === 'arith') {
+    const s = rnd(1, 9), d = rnd(2, 9);
+    seq = [s, s + d, s + 2 * d, s + 3 * d]; ans = s + 4 * d;
+  } else if (type === 'geo') {
+    const s = rnd(1, 4), r = pick([2, 3]);
+    seq = [s, s * r, s * r * r, s * r * r * r]; ans = s * r * r * r * r;
+  } else if (type === 'sq') {
+    const s = rnd(1, 5);
+    seq = [s * s, (s + 1) ** 2, (s + 2) ** 2, (s + 3) ** 2]; ans = (s + 4) ** 2;
+  } else if (type === 'addinc') {
+    const s = rnd(1, 9), d = rnd(2, 5), e = rnd(1, 3);
+    const a = [s]; let dd = d;
+    for (let i = 0; i < 4; i++) { a.push(a[a.length - 1] + dd); dd += e; }
+    seq = a.slice(0, 4); ans = a[4];
+  } else { // muladd: aₙ₊₁ = aₙ*2 + add
+    const s = rnd(1, 5), add = pick([1, 2]);
+    const a = [s];
+    for (let i = 0; i < 4; i++) a.push(a[a.length - 1] * 2 + add);
+    seq = a.slice(0, 4); ans = a[4];
+  }
+  const opts = new Set([ans]);
+  let guard = 0;
+  while (opts.size < 4 && guard++ < 50) {
+    const base = pick([-3, -2, -1, 1, 2, 3, 4, -4]);
+    const o = ans + base * (Math.abs(ans) > 30 ? rnd(1, 3) : 1);
+    if (o !== ans && o > 0) opts.add(o);
+  }
+  while (opts.size < 4) opts.add(ans + opts.size + 1);
+  return { seq, ans, options: [...opts].sort(() => Math.random() - 0.5) };
+}
+
+function seqStop() { clearTimeout(seqTimer); seqTimer = null; seqActive = false; }
+
+function sequenceReset() {
+  seqStop(); seqScore = 0;
+  const info = $('seq-info'), res = $('seq-result'), btn = $('seq-btn'),
+        disp = $('seq-display'), opts = $('seq-opts'), tf = $('seq-timer'), sub = $('seq-sub');
+  if (info) info.textContent = 'Raund 1';
+  if (sub)  sub.textContent  = 'Qatordagi keyingi sonni toping!';
+  if (res)  res.style.display = 'none';
+  if (btn)  { btn.style.display = 'block'; btn.textContent = '🔢 Boshlash'; }
+  if (disp) disp.innerHTML = '';
+  if (opts) opts.innerHTML = '';
+  if (tf)   { tf.style.transition = 'none'; tf.style.width = '100%'; }
+}
+
+function sequenceBoshlash() {
+  haptic('light');
+  seqScore = 0; seqActive = true;
+  const res = $('seq-result'), btn = $('seq-btn');
+  if (res) res.style.display = 'none';
+  if (btn) btn.style.display = 'none';
+  seqRaund();
+}
+
+function seqRaund() {
+  if (!seqActive) return;
+  const info = $('seq-info'), disp = $('seq-display'), opts = $('seq-opts'), tf = $('seq-timer');
+  if (info) info.textContent = 'Raund ' + (seqScore + 1);
+  const g = genSeq(seqScore);
+  seqAns = g.ans;
+  if (disp) {
+    disp.innerHTML = g.seq.map(n => `<span class="seq-num">${n}</span>`).join('<span class="seq-sep">,</span>')
+      + '<span class="seq-sep">,</span><span class="seq-num seq-q">?</span>';
+  }
+  if (opts) {
+    opts.innerHTML = '';
+    g.options.forEach(o => {
+      const b = document.createElement('button');
+      b.className = 'seq-opt';
+      b.textContent = o;
+      b.onclick = () => seqTanla(o, b);
+      opts.appendChild(b);
+    });
+  }
+  const tlim = Math.max(3000, 8000 - seqScore * 400);
+  if (tf) {
+    tf.style.transition = 'none'; tf.style.width = '100%';
+    void tf.offsetWidth;
+    tf.style.transition = `width ${tlim}ms linear`;
+    tf.style.width = '0%';
+  }
+  clearTimeout(seqTimer);
+  seqTimer = setTimeout(() => seqTugadi('⏰ Vaqt tugadi!'), tlim);
+}
+
+function seqTanla(val, btn) {
+  if (!seqActive) return;
+  clearTimeout(seqTimer);
+  if (val === seqAns) {
+    seqScore++;
+    haptic('light');
+    if (btn) btn.classList.add('correct');
+    document.querySelectorAll('#seq-opts .seq-opt').forEach(b => b.onclick = null);
+    setTimeout(seqRaund, 280);
+  } else {
+    if (btn) btn.classList.add('wrong');
+    haptic('light');
+    seqTugadi("❌ Noto'g'ri!");
+  }
+}
+
+function seqTugadi(sabab) {
+  seqStop();
+  const res = $('seq-result'), fin = $('seq-final'), verd = $('seq-verdict'),
+        btn = $('seq-btn'), disp = $('seq-display'), opts = $('seq-opts');
+  if (disp) disp.innerHTML = '';
+  if (opts) opts.innerHTML = '';
+  if (fin)  fin.textContent = seqScore;
+  if (verd) verd.textContent = `${sabab} • ` + (seqScore >= 12 ? '🏆 Daho!' : seqScore >= 7 ? "🔥 Zo'r!" : seqScore >= 3 ? '👍 Yaxshi' : 'Mashq qiling!');
+  if (res)  res.style.display = 'block';
+  if (btn)  btn.style.display = 'none';
+  const xp = capGame('sequence', GXP.sequence(seqScore));
+  S.games++; addXP(xp); badge('gamer');
+  haptic('medium');
+  showToast(`🔢 ${seqScore} raund! +${xp} XP`);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   renderRoastTarixi();
 
@@ -2124,6 +2258,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('target-retry')?.addEventListener('click', targetBoshlash);
   $('schulte-btn')?.addEventListener('click',   schulteBoshlash);
   $('schulte-retry')?.addEventListener('click', schulteBoshlash);
+  $('seq-btn')?.addEventListener('click',       sequenceBoshlash);
+  $('seq-retry')?.addEventListener('click',     sequenceBoshlash);
 
   /* Boot */
   goTo('boot');
