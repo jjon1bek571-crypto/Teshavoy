@@ -31,11 +31,6 @@ async function syncToBackend() {
   } catch { /* Firebase yo'q — muammo emas */ }
 }
 
-/* ── Reytingni olish ── */
-async function fetchLeaderboard() {
-  return await fbGetLeaderboard();
-}
-
 /* ── LocalStorage yordamchilari ── */
 const ls = {
   get: (k) => { try { return localStorage.getItem('miya_' + k); } catch { return null; } },
@@ -190,45 +185,82 @@ function renderHome() {
 /* ══════════════════════════════════════
    REYTING — faqat haqiqiy o'yinchilar
 ══════════════════════════════════════ */
+let ratingMode = 'season';   // 'season' | 'alltime'
+
+function setRatingMode(mode) {
+  if (mode === ratingMode) return;
+  ratingMode = mode;
+  haptic('light');
+  renderRating();
+}
+
+function seasonNomi(s) {
+  const OYLAR = ['', 'Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
+  if (!s) return 'Joriy';
+  const m = parseInt(String(s).split('-')[1], 10);
+  return OYLAR[m] || 'Joriy';
+}
+
 async function renderRating() {
-  const myXP  = xpTotal();
   const myUID = ls.get('uid') || '';
+
+  // Tugmalar holati
+  const sBtn = $('rt-season'), aBtn = $('rt-alltime');
+  if (sBtn) sBtn.classList.toggle('active', ratingMode === 'season');
+  if (aBtn) aBtn.classList.toggle('active', ratingMode === 'alltime');
 
   // Avval yuklanmoqda ko'rsatamiz
   const listEl = $('leader-list');
   if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text3)">⏳ Yuklanmoqda...</div>';
 
-  // Backend dan haqiqiy data olishga urinamiz
-  const realData = await fetchLeaderboard();
+  // Backend dan reyting (rejimga qarab)
+  const resp     = await fbGetLeaderboard(ratingMode);
+  const realData = (resp && resp.players) || [];
+
+  // Sarlavha
+  const titleEl = $('rating-hero-title'), subEl = $('rating-hero-sub');
+  if (ratingMode === 'season') {
+    if (titleEl) titleEl.textContent = `🏆 ${seasonNomi(resp && resp.season)} mavsumi`;
+    if (subEl)   subEl.textContent   = (resp && resp.daysLeft != null)
+      ? `0 dan raqobat • ${resp.daysLeft} kun qoldi`
+      : '0 dan teng raqobat';
+  } else {
+    if (titleEl) titleEl.textContent = '🕰️ Barcha vaqt';
+    if (subEl)   subEl.textContent   = "Eng ko'p ball to'plaganlar";
+  }
+
+  // Mening ballim shu rejimda
+  const myScore = ratingMode === 'season' ? (window.__miyaSeasonXp || 0) : xpTotal();
 
   // Faqat HAQIQIY kirgan odamlar
   const EMOJIS = ['😎','🌸','🦁','💫','🔥','⭐','🎯','🌺','💪','🎀','🧠','🌟','⚡','🚀','🎮','👑','🎲','🌈','🍀','🦊'];
-  let players = (realData || []).map((p, i) => ({
+  let players = realData.map((p, i) => ({
     nom:  p.name,
     em:   EMOJIS[i % EMOJIS.length],
     xp:   p.xp,
     lvl:  p.level,
-    isMe: p.user_id === myUID,
+    isMe: String(p.user_id) === String(myUID),
   }));
 
   // O'zimizni qo'shamiz (hali serverga yetib bormagan bo'lishi mumkin)
   if (!players.some(p => p.isMe)) {
-    players.push({ nom: S.name, em: '👤', xp: myXP, lvl: S.level, isMe: true });
+    players.push({ nom: S.name, em: '👤', xp: myScore, lvl: S.level, isMe: true });
   } else {
-    // Bor bo'lsa, eng yangi XP bilan yangilaymiz
     const me = players.find(p => p.isMe);
-    me.xp = myXP; me.lvl = S.level; me.em = '👤';
+    me.em = '👤'; me.lvl = S.level;
+    if (ratingMode === 'alltime') me.xp = Math.max(me.xp, xpTotal());
   }
   players.sort((a, b) => b.xp - a.xp);
 
-  const myIdx    = players.findIndex(p => p.isMe);
+  const myIdx        = players.findIndex(p => p.isMe);
+  const myScoreFinal = myIdx >= 0 ? players[myIdx].xp : myScore;
   const myRankEl = $('my-rank-num');
   const myNameEl = $('my-rank-name');
   const myXpEl   = $('my-rank-xp');
   const chipEl   = $('rating-total-chip');
   if (myRankEl) myRankEl.textContent = `#${myIdx + 1}`;
   if (myNameEl) myNameEl.textContent = S.name;
-  if (myXpEl)   myXpEl.textContent   = `${myXP} XP • ${S.level}-daraja`;
+  if (myXpEl)   myXpEl.textContent   = `${myScoreFinal} XP • ${S.level}-daraja`;
   if (chipEl)   chipEl.textContent   = `${players.length} o'yinchi`;
 
   if (!listEl) return;
@@ -267,17 +299,19 @@ async function renderRating() {
         <div class="leader-xp">${S.level}-daraja</div>
       </div>
       <div class="leader-score">
-        <div class="leader-pts">${myXP}</div>
+        <div class="leader-pts">${myScoreFinal}</div>
         <div class="leader-lbl">XP</div>
       </div>`;
     listEl.appendChild(d);
   }
 
-  // Kam o'yinchi bo'lsa — do'st chaqirishga undash
+  // Kam o'yinchi bo'lsa — undash
   if (players.length < 5) {
     const hint = document.createElement('div');
     hint.style.cssText = 'text-align:center;padding:20px 16px;margin-top:8px;color:var(--text2);font-size:13px;line-height:1.6;background:var(--purple-pale);border-radius:14px;';
-    hint.innerHTML = "🚀 Hali kam o'yinchi bor!<br><b style='color:var(--purple)'>Do'stlaringizni chaqiring</b> va birinchi bo'ling.";
+    hint.innerHTML = ratingMode === 'season'
+      ? "🏆 Yangi mavsum boshlandi!<br><b style='color:var(--purple)'>Birinchi bo'lib yuqoriga chiqing.</b>"
+      : "🚀 Hali kam o'yinchi bor!<br><b style='color:var(--purple)'>Do'stlaringizni chaqiring</b> va birinchi bo'ling.";
     listEl.appendChild(hint);
   }
 }

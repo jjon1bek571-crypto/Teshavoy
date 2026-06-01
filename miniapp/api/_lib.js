@@ -35,6 +35,26 @@ function clampInt(v, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
+/* ── Mavsum (Season) — oy bo'yicha, Toshkent vaqti (UTC+5) ── */
+const TZ_OFFSET = 5 * 3600 * 1000;
+
+function currentSeason() {
+  const d = new Date(Date.now() + TZ_OFFSET);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
+/* Joriy mavsum nomi va oy oxirigacha qancha kun qolganini qaytaradi */
+function seasonInfo() {
+  const now = Date.now();
+  const d   = new Date(now + TZ_OFFSET);
+  const y = d.getUTCFullYear(), m = d.getUTCMonth();
+  const season = `${y}-${String(m + 1).padStart(2, '0')}`;
+  // Keyingi oyning 1-kuni 00:00 (UTC+5) — UTC'da 5 soat oldin
+  const nextMonthStart = Date.UTC(y, m + 1, 1) - TZ_OFFSET;
+  const daysLeft = Math.max(0, Math.ceil((nextMonthStart - now) / (24 * 3600 * 1000)));
+  return { season, daysLeft };
+}
+
 /* Telegram initData ni tekshiradi. Tekshirilgan `user` obyektini qaytaradi
    yoki yaroqsiz bo'lsa null. Telegram'da yangi `signature` maydoni borligi
    sababli data-check-string'ni ikki talqinda sinab ko'ramiz. */
@@ -104,10 +124,10 @@ async function kvList(prefix) {
     for (const [k, v] of arr) {
       let obj = v;
       if (typeof v === 'string') { try { obj = JSON.parse(v); } catch { obj = null; } }
-      if (obj && obj.name) out.push({ user_id: k.replace(/^u:/, ''), ...obj });
+      if (obj && obj.name) out.push({ user_id: k.split(':').pop(), ...obj });
     }
     return out;
   } catch { return []; }
 }
 
-module.exports = { verifyInitData, clampInt, kvGet, kvSet, kvList, LIMITS };
+module.exports = { verifyInitData, clampInt, kvGet, kvSet, kvList, LIMITS, currentSeason, seasonInfo };

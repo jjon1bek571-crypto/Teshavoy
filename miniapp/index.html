@@ -370,8 +370,12 @@
   </div>
   <div class="scroll">
     <div class="rating-hero">
-      <div class="rating-hero-title">🌍 Jami o'yinchilar reytingi</div>
-      <div class="rating-hero-sub">Eng ko'p ball to'plagan o'yinchilar</div>
+      <div class="rating-hero-title" id="rating-hero-title">🏆 Mavsum reytingi</div>
+      <div class="rating-hero-sub"   id="rating-hero-sub">Yuklanmoqda...</div>
+    </div>
+    <div class="rt-toggle">
+      <button class="rt-btn active" id="rt-season"  onclick="setRatingMode('season')">🏆 Mavsum</button>
+      <button class="rt-btn"        id="rt-alltime" onclick="setRatingMode('alltime')">🕰️ Barcha vaqt</button>
     </div>
     <div class="my-rank-card">
       <div class="my-rank-num"  id="my-rank-num">#?</div>

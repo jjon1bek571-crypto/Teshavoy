@@ -10,13 +10,15 @@
 
 const API_BASE = '/api';
 
-/* ── Reytingni olish ── */
-async function fbGetLeaderboard() {
+/* ── Reytingni olish (type: 'season' | 'alltime') ──
+   Qaytaradi: { type, season, daysLeft, players: [...] } yoki null */
+async function fbGetLeaderboard(type = 'season') {
   try {
-    const res = await fetch(`${API_BASE}/leaderboard`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE}/leaderboard?type=${encodeURIComponent(type)}`, { cache: 'no-store' });
     if (!res.ok) return null;
-    const arr = await res.json();
-    return Array.isArray(arr) ? arr : null;
+    const data = await res.json();
+    if (Array.isArray(data)) return { type, season: '', daysLeft: null, players: data }; // eski formatga moslik
+    return (data && Array.isArray(data.players)) ? data : null;
   } catch {
     return null;
   }
@@ -34,7 +36,7 @@ async function _doSave(data) {
   // Telegram tashqarisida (oddiy brauzer testi) initData bo'lmaydi — yozmaymiz
   if (!initData) return;
   try {
-    await fetch(`${API_BASE}/score`, {
+    const res = await fetch(`${API_BASE}/score`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -47,5 +49,10 @@ async function _doSave(data) {
         iq:     data.iq,
       }),
     });
+    // Server joriy mavsumdagi ballimizni qaytaradi — reyting uchun saqlaymiz
+    if (res.ok) {
+      const r = await res.json();
+      if (r && typeof r.seasonXp === 'number') window.__miyaSeasonXp = r.seasonXp;
+    }
   } catch { /* internet yo'q — keyingi safar qayta urinadi */ }
 }

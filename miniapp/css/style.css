@@ -1920,3 +1920,30 @@ hr.div {
   from { transform: scale(0.3); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
 }
+
+/* ── Reyting rejim almashtirgich (Mavsum / Barcha vaqt) ── */
+.rt-toggle {
+  display: flex;
+  gap: 6px;
+  margin: 0 16px 12px;
+  background: var(--purple-pale, #f3f0ff);
+  padding: 4px;
+  border-radius: 14px;
+}
+.rt-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text2, #64748b);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.rt-btn.active {
+  background: var(--purple, #7c3aed);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.35);
+}
