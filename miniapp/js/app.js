@@ -77,6 +77,7 @@ const GXP = {
   hayoyo:      (correct)   => correct * 1,                                                 // viktorina (kam)
   npc:         5,
   ruletka:     (bonus)     => bonus ? bonus : 3,                                           // omad (kam)
+  schulte:     (sec)       => Math.max(5, Math.min(45, Math.round((50 - sec) * 1.1))),     // tezroq -> ko'proq
 };
 
 /* ── XP iqtisodi (ANCHA QIYIN) ──
@@ -206,7 +207,7 @@ function saveQuests(q) { ls.set('quests', JSON.stringify(q)); }
    Omad/spam o'yinlari tor, mahorat o'yinlari saxiy. */
 const GAME_DAILY_CAP = {
   reflex: 300, memory: 300, math: 300, stroop: 300, find: 300, target: 300,
-  hayoyo: 80, tap: 24, npc: 5, ruletka: 6,
+  schulte: 300, hayoyo: 80, tap: 24, npc: 5, ruletka: 6,
 };
 function gameDayState() {
   let s = null;
@@ -1054,6 +1055,7 @@ function openGame(nom) {
   if (nom === 'find')     findReset();
   if (nom === 'tap')      tapReset();
   if (nom === 'target')   targetReset();
+  if (nom === 'schulte')  schulteReset();
 }
 
 function closeGame(nom) {
@@ -1064,6 +1066,7 @@ function closeGame(nom) {
   if (nom === 'find')   findStop();
   if (nom === 'tap')    tapStop();
   if (nom === 'target') targetStop();
+  if (nom === 'schulte') schulteStop();
 }
 
 /* ── 1. REFLEX O'YINI ── */
@@ -1975,6 +1978,82 @@ function targetTugadi(sabab) {
   showToast(`🎯 ${tgScore} ball! +${xp} XP`);
 }
 
+/* ══════════════════════════════════════
+   YANGI O'YIN 5: SCHULTE JADVAL (1->25 tartibda tez bos)
+══════════════════════════════════════ */
+let scNums = [], scNext = 1, scStart = 0, scActive = false, scTimer = null;
+
+function schulteStop() { clearInterval(scTimer); scTimer = null; scActive = false; }
+
+function schulteReset() {
+  schulteStop();
+  scNext = 1;
+  const info = $('schulte-info'), res = $('schulte-result'), btn = $('schulte-btn'),
+        grid = $('schulte-grid'), tf = $('schulte-timer'), sub = $('schulte-sub');
+  if (info) info.textContent = 'Keyingi: 1';
+  if (sub)  sub.textContent  = '1 dan 25 gacha tartibda tez bosing!';
+  if (res)  res.style.display = 'none';
+  if (btn)  { btn.style.display = 'block'; btn.textContent = '🅰️ Boshlash'; }
+  if (grid) grid.innerHTML = '';
+  if (tf)   tf.textContent = '0.0s';
+}
+
+function schulteBoshlash() {
+  haptic('light');
+  scActive = true; scNext = 1;
+  const grid = $('schulte-grid'), res = $('schulte-result'), btn = $('schulte-btn'), info = $('schulte-info'), tf = $('schulte-timer');
+  if (res)  res.style.display = 'none';
+  if (btn)  btn.style.display = 'none';
+  if (info) info.textContent = 'Keyingi: 1';
+  scNums = Array.from({ length: 25 }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+  if (grid) {
+    grid.innerHTML = '';
+    scNums.forEach(n => {
+      const c = document.createElement('div');
+      c.className = 'schulte-cell';
+      c.textContent = n;
+      c.onclick = () => schulteTanla(n, c);
+      grid.appendChild(c);
+    });
+  }
+  scStart = Date.now();
+  clearInterval(scTimer);
+  scTimer = setInterval(() => {
+    if (tf) tf.textContent = ((Date.now() - scStart) / 1000).toFixed(1) + 's';
+  }, 100);
+}
+
+function schulteTanla(n, cell) {
+  if (!scActive) return;
+  if (n === scNext) {
+    haptic('light');
+    if (cell) { cell.classList.add('done'); cell.onclick = null; }
+    scNext++;
+    const info = $('schulte-info');
+    if (info) info.textContent = scNext <= 25 ? 'Keyingi: ' + scNext : 'Tayyor!';
+    if (scNext > 25) schulteTugadi();
+  } else {
+    haptic('light');
+    if (cell) { cell.classList.add('bad'); setTimeout(() => cell.classList.remove('bad'), 250); }
+  }
+}
+
+function schulteTugadi() {
+  const elapsed = (Date.now() - scStart) / 1000;
+  schulteStop();
+  const res = $('schulte-result'), fin = $('schulte-final'), verd = $('schulte-verdict'),
+        btn = $('schulte-btn'), grid = $('schulte-grid');
+  if (grid) grid.innerHTML = '';
+  if (fin)  fin.textContent = elapsed.toFixed(1) + 's';
+  if (verd) verd.textContent = elapsed <= 20 ? '🏆 Ajoyib diqqat!' : elapsed <= 30 ? "🔥 Zo'r!" : elapsed <= 45 ? '👍 Yaxshi' : 'Mashq qiling!';
+  if (res)  res.style.display = 'block';
+  if (btn)  btn.style.display = 'none';
+  const xp = capGame('schulte', GXP.schulte(elapsed));
+  S.games++; addXP(xp); badge('gamer');
+  haptic('medium');
+  showToast(`🅰️ ${elapsed.toFixed(1)}s! +${xp} XP`);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   renderRoastTarixi();
 
@@ -2043,6 +2122,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('tap-pad')?.addEventListener('click',      tapBos);
   $('target-btn')?.addEventListener('click',   targetBoshlash);
   $('target-retry')?.addEventListener('click', targetBoshlash);
+  $('schulte-btn')?.addEventListener('click',   schulteBoshlash);
+  $('schulte-retry')?.addEventListener('click', schulteBoshlash);
 
   /* Boot */
   goTo('boot');

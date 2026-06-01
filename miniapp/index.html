@@ -180,6 +180,9 @@
       <div class="pill" onclick="openGame('target')">
         <span class="pill-em">🎯</span><span class="pill-txt">Nishon</span>
       </div>
+      <div class="pill" onclick="openGame('schulte')">
+        <span class="pill-em">🅰️</span><span class="pill-txt">Schulte</span>
+      </div>
     </div>
 
   </div>
@@ -388,6 +391,14 @@
         <div class="gc-nm">Nishonga ol</div>
         <div class="gc-ds">Nishon chiqqanda tez bosing. Ulgurmasangiz — tugadi</div>
         <div class="gc-bar red"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('schulte')">
+        <div class="gc-xp">🆕 +ball</div>
+        <div class="gc-em">🅰️</div>
+        <div class="gc-nm">Schulte jadval</div>
+        <div class="gc-ds">1→25 ni tartibda tez bos. Diqqatni sina!</div>
+        <div class="gc-bar green"></div>
       </div>
 
     </div>
@@ -763,6 +774,26 @@
       <button class="btn btn-outline" id="target-retry">↩ Qaytadan</button>
     </div>
     <button class="btn btn-purple" id="target-btn">🎯 Boshlash</button>
+  </div>
+</div>
+
+<!-- SCHULTE JADVAL MODAL -->
+<div class="modal" id="modal-schulte">
+  <div class="modal-header">
+    <div class="modal-title">🅰️ Schulte jadval</div>
+    <button class="modal-close" onclick="closeGame('schulte')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub" id="schulte-sub">1 dan 25 gacha tartibda tez bosing!</div>
+    <div class="stroop-score" id="schulte-info">Keyingi: 1</div>
+    <div class="tap-time" id="schulte-timer">0.0s</div>
+    <div class="schulte-grid" id="schulte-grid"></div>
+    <div id="schulte-result" style="display:none;text-align:center;width:100%">
+      <div class="math-score-big" id="schulte-final">0</div>
+      <div style="font-size:16px;color:var(--text2);font-weight:600;margin-bottom:12px" id="schulte-verdict"></div>
+      <button class="btn btn-outline" id="schulte-retry">↩ Qaytadan</button>
+    </div>
+    <button class="btn btn-purple" id="schulte-btn">🅰️ Boshlash</button>
   </div>
 </div>
 
