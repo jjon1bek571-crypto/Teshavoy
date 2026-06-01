@@ -52,14 +52,22 @@ quyidagi qadamlarni bajaring (bir marta):
    ```
    Javobda yangi `BUCKET_ID` qaytadi.
 
-2. **Vercel → Settings → Environment Variables** ga qo'shing:
+2. **Eski ballarni ko'chiring** (mavjud o'yinchilar yo'qolmasligi uchun) — bir marta:
+   ```powershell
+   $env:KVDB_BUCKET="yangi_BUCKET_ID"
+   $env:KVDB_SECRET="UZUN_TASODIFIY_KALIT"
+   node tools/migrate.js
+   ```
+   Telegram'dan o'ynaganlar o'z ballarini keyin ham yangilab boradi.
+
+3. **Vercel → Settings → Environment Variables** ga qo'shing:
    | Nomi | Qiymati |
    |------|---------|
    | `BOT_TOKEN`   | botning tokeni (initData tekshiruvi uchun) |
    | `KVDB_BUCKET` | yuqoridagi yangi `BUCKET_ID` |
    | `KVDB_SECRET` | yuqoridagi `secret_key` |
 
-3. Qayta deploy qiling (Redeploy).
+4. Qayta deploy qiling (Redeploy).
 
 ## 🔐 Maxfiylik / Xavfsizlik
 

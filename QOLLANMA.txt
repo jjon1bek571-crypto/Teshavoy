@@ -59,8 +59,10 @@
    bo'limiga qarang. Qisqacha:
    1. kvdb'da maxfiy kalitli YANGI bucket yarating:
       curl https://kvdb.io -d 'email=EMAIL' -d 'secret_key=KALIT'
-   2. Vercel env: BOT_TOKEN, KVDB_BUCKET, KVDB_SECRET
-   3. Qayta deploy.
+   2. Eski ballarni ko'chiring (bir marta), yo'qolmasligi uchun:
+      $env:KVDB_BUCKET="id"; $env:KVDB_SECRET="kalit"; node tools/migrate.js
+   3. Vercel env: BOT_TOKEN, KVDB_BUCKET, KVDB_SECRET
+   4. Qayta deploy.
 
    Eslatma: ballar mijozda hisoblanadi; server cheklaydi
    (absurd qiymatlarni rad etadi) lekin to'liq cheat-proof emas.
