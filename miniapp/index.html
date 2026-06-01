@@ -186,6 +186,9 @@
       <div class="pill" onclick="openGame('sequence')">
         <span class="pill-em">🔢</span><span class="pill-txt">Ketma-ket</span>
       </div>
+      <div class="pill" onclick="openGame('anagram')">
+        <span class="pill-em">🔤</span><span class="pill-txt">So'z</span>
+      </div>
     </div>
 
   </div>
@@ -410,6 +413,14 @@
         <div class="gc-nm">Sonlar ketma-ketligi</div>
         <div class="gc-ds">Qatordagi keyingi sonni top. Mantiqni sina!</div>
         <div class="gc-bar purple"></div>
+      </div>
+
+      <div class="game-card" onclick="openGame('anagram')">
+        <div class="gc-xp">🆕 +ball</div>
+        <div class="gc-em">🔤</div>
+        <div class="gc-nm">So'z yasash</div>
+        <div class="gc-ds">Aralashgan harflardan so'z tuz. Tez bo'l!</div>
+        <div class="gc-bar yellow"></div>
       </div>
 
     </div>
@@ -826,6 +837,28 @@
       <button class="btn btn-outline" id="seq-retry">↩ Qaytadan</button>
     </div>
     <button class="btn btn-purple" id="seq-btn">🔢 Boshlash</button>
+  </div>
+</div>
+
+<!-- SO'Z YASASH (ANAGRAM) MODAL -->
+<div class="modal" id="modal-anagram">
+  <div class="modal-header">
+    <div class="modal-title">🔤 So'z yasash</div>
+    <button class="modal-close" onclick="closeGame('anagram')">✕</button>
+  </div>
+  <div class="modal-box">
+    <div class="modal-sub" id="ag-sub">Aralashgan harflardan so'z tuzing!</div>
+    <div class="stroop-score" id="ag-info">Raund 1</div>
+    <div class="stroop-timer-wrap"><div class="stroop-timer-fill" id="ag-timer"></div></div>
+    <div class="ag-built" id="ag-built"></div>
+    <div class="ag-tiles" id="ag-tiles"></div>
+    <button class="btn btn-outline" id="ag-clear" style="margin-top:6px;display:none">✕ Tozalash</button>
+    <div id="ag-result" style="display:none;text-align:center;width:100%">
+      <div class="math-score-big" id="ag-final">0</div>
+      <div style="font-size:16px;color:var(--text2);font-weight:600;margin-bottom:12px" id="ag-verdict"></div>
+      <button class="btn btn-outline" id="ag-retry">↩ Qaytadan</button>
+    </div>
+    <button class="btn btn-purple" id="ag-btn">🔤 Boshlash</button>
   </div>
 </div>
 

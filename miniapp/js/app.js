@@ -79,6 +79,7 @@ const GXP = {
   ruletka:     (bonus)     => bonus ? bonus : 3,                                           // omad (kam)
   schulte:     (sec)       => Math.max(5, Math.min(45, Math.round((50 - sec) * 1.1))),     // tezroq -> ko'proq
   sequence:    (score)     => Math.min(45, score * 3),                                      // har to'g'ri raund
+  anagram:     (score)     => Math.min(45, score * 5),                                      // har tuzilgan so'z
 };
 
 /* ── XP iqtisodi (ANCHA QIYIN) ──
@@ -208,7 +209,7 @@ function saveQuests(q) { ls.set('quests', JSON.stringify(q)); }
    Omad/spam o'yinlari tor, mahorat o'yinlari saxiy. */
 const GAME_DAILY_CAP = {
   reflex: 300, memory: 300, math: 300, stroop: 300, find: 300, target: 300,
-  schulte: 300, sequence: 300, hayoyo: 80, tap: 24, npc: 5, ruletka: 6,
+  schulte: 300, sequence: 300, anagram: 300, hayoyo: 80, tap: 24, npc: 5, ruletka: 6,
 };
 function gameDayState() {
   let s = null;
@@ -1058,6 +1059,7 @@ function openGame(nom) {
   if (nom === 'target')   targetReset();
   if (nom === 'schulte')  schulteReset();
   if (nom === 'sequence') sequenceReset();
+  if (nom === 'anagram')  anagramReset();
 }
 
 function closeGame(nom) {
@@ -1070,6 +1072,7 @@ function closeGame(nom) {
   if (nom === 'target') targetStop();
   if (nom === 'schulte') schulteStop();
   if (nom === 'sequence') seqStop();
+  if (nom === 'anagram') agStop();
 }
 
 /* ── 1. REFLEX O'YINI ── */
@@ -2188,6 +2191,127 @@ function seqTugadi(sabab) {
   showToast(`🔢 ${seqScore} raund! +${xp} XP`);
 }
 
+/* ══════════════════════════════════════
+   YANGI O'YIN 7: SO'Z YASASH (anagram)
+══════════════════════════════════════ */
+const ANAGRAM_WORDS = ['KITOB','OLMA','QALAM','MAKTAB','DAFTAR','OSMON','YULDUZ','QUYOSH','BAHOR','DARYO','MEVA','PIYOZ','KARAM','BALIQ','DARAXT','MUSHUK','SHAMOL','BILIM','MEHNAT','SOAT','GULZOR','BODRING'];
+let agWord = '', agBuilt = '', agScore = 0, agActive = false, agTimer = null;
+
+function agStop() { clearTimeout(agTimer); agTimer = null; agActive = false; }
+
+function anagramReset() {
+  agStop(); agScore = 0; agBuilt = '';
+  const info = $('ag-info'), res = $('ag-result'), btn = $('ag-btn'),
+        built = $('ag-built'), tiles = $('ag-tiles'), tf = $('ag-timer'), sub = $('ag-sub'), clr = $('ag-clear');
+  if (info) info.textContent = 'Raund 1';
+  if (sub)  sub.textContent  = "Aralashgan harflardan so'z tuzing!";
+  if (res)  res.style.display = 'none';
+  if (btn)  { btn.style.display = 'block'; btn.textContent = '🔤 Boshlash'; }
+  if (built) built.innerHTML = '';
+  if (tiles) tiles.innerHTML = '';
+  if (clr)   clr.style.display = 'none';
+  if (tf)    { tf.style.transition = 'none'; tf.style.width = '100%'; }
+}
+
+function anagramBoshlash() {
+  haptic('light'); agScore = 0; agActive = true;
+  const res = $('ag-result'), btn = $('ag-btn'), clr = $('ag-clear');
+  if (res) res.style.display = 'none';
+  if (btn) btn.style.display = 'none';
+  if (clr) clr.style.display = 'block';
+  agRaund();
+}
+
+function agRaund() {
+  if (!agActive) return;
+  const info = $('ag-info'), tf = $('ag-timer'), tiles = $('ag-tiles');
+  if (info) info.textContent = 'Raund ' + (agScore + 1);
+  agWord = ANAGRAM_WORDS[rnd(0, ANAGRAM_WORDS.length - 1)];
+  agBuilt = '';
+  let letters, g = 0;
+  do { letters = agWord.split('').sort(() => Math.random() - 0.5); }
+  while (letters.join('') === agWord && agWord.length > 1 && g++ < 10);
+  if (tiles) {
+    tiles.innerHTML = '';
+    letters.forEach(ch => {
+      const b = document.createElement('button');
+      b.className = 'ag-tile';
+      b.textContent = ch;
+      b.onclick = () => agTap(ch, b);
+      tiles.appendChild(b);
+    });
+  }
+  agRenderBuilt(false);
+  const tlim = Math.max(4000, 11000 - agScore * 600);
+  if (tf) {
+    tf.style.transition = 'none'; tf.style.width = '100%';
+    void tf.offsetWidth;
+    tf.style.transition = `width ${tlim}ms linear`;
+    tf.style.width = '0%';
+  }
+  clearTimeout(agTimer);
+  agTimer = setTimeout(() => agTugadi('⏰ Vaqt tugadi!'), tlim);
+}
+
+function agRenderBuilt(bad) {
+  const el = $('ag-built');
+  if (!el) return;
+  el.className = 'ag-built' + (bad ? ' bad' : '');
+  let h = '';
+  for (let i = 0; i < agWord.length; i++) {
+    h += `<span class="ag-slot${i < agBuilt.length ? ' filled' : ''}">${agBuilt[i] || ''}</span>`;
+  }
+  el.innerHTML = h;
+}
+
+function agTap(ch, tile) {
+  if (!agActive || agBuilt.length >= agWord.length) return;
+  agBuilt += ch;
+  if (tile) tile.classList.add('used');
+  haptic('light');
+  agRenderBuilt(false);
+  if (agBuilt.length === agWord.length) agCheck();
+}
+
+function agCheck() {
+  if (agBuilt === agWord) {
+    agScore++; haptic('medium');
+    setTimeout(agRaund, 350);
+  } else {
+    agRenderBuilt(true); haptic('light');
+    setTimeout(() => {
+      agBuilt = '';
+      document.querySelectorAll('#ag-tiles .ag-tile').forEach(b => b.classList.remove('used'));
+      agRenderBuilt(false);
+    }, 500);
+  }
+}
+
+function agClear() {
+  if (!agActive) return;
+  agBuilt = '';
+  document.querySelectorAll('#ag-tiles .ag-tile').forEach(b => b.classList.remove('used'));
+  agRenderBuilt(false);
+  haptic('light');
+}
+
+function agTugadi(sabab) {
+  agStop();
+  const res = $('ag-result'), fin = $('ag-final'), verd = $('ag-verdict'),
+        btn = $('ag-btn'), tiles = $('ag-tiles'), built = $('ag-built'), clr = $('ag-clear');
+  if (tiles) tiles.innerHTML = '';
+  if (built) built.innerHTML = '';
+  if (clr)   clr.style.display = 'none';
+  if (fin)   fin.textContent = agScore;
+  if (verd)  verd.textContent = `${sabab} • ` + (agScore >= 10 ? "🏆 So'z ustasi!" : agScore >= 6 ? "🔥 Zo'r!" : agScore >= 3 ? '👍 Yaxshi' : 'Mashq qiling!');
+  if (res)   res.style.display = 'block';
+  if (btn)   btn.style.display = 'none';
+  const xp = capGame('anagram', GXP.anagram(agScore));
+  S.games++; addXP(xp); badge('gamer');
+  haptic('medium');
+  showToast(`🔤 ${agScore} so'z! +${xp} XP`);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   renderRoastTarixi();
 
@@ -2260,6 +2384,9 @@ window.addEventListener('DOMContentLoaded', () => {
   $('schulte-retry')?.addEventListener('click', schulteBoshlash);
   $('seq-btn')?.addEventListener('click',       sequenceBoshlash);
   $('seq-retry')?.addEventListener('click',     sequenceBoshlash);
+  $('ag-btn')?.addEventListener('click',        anagramBoshlash);
+  $('ag-retry')?.addEventListener('click',      anagramBoshlash);
+  $('ag-clear')?.addEventListener('click',      agClear);
 
   /* Boot */
   goTo('boot');
