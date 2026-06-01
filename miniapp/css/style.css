@@ -1947,3 +1947,42 @@ hr.div {
   color: #fff;
   box-shadow: 0 3px 10px rgba(124, 58, 237, 0.35);
 }
+
+/* ── 🎁 Sovg'a banner (Shov) ── */
+.prize-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 16px 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(120deg, #f59e0b, #f97316 55%, #ef4444);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.4);
+  cursor: pointer;
+  color: #fff;
+  animation: prizeGlow 2.4s ease-in-out infinite;
+}
+@keyframes prizeGlow {
+  0%, 100% { box-shadow: 0 6px 18px rgba(249, 115, 22, 0.4); }
+  50%      { box-shadow: 0 6px 26px rgba(249, 115, 22, 0.7); }
+}
+.prize-banner-em { font-size: 30px; line-height: 1; }
+.prize-banner-txt { flex: 1; min-width: 0; }
+.prize-banner-title { font-weight: 800; font-size: 15px; }
+.prize-banner-sub   { font-size: 12px; opacity: 0.95; margin-top: 2px; }
+
+.prize-info {
+  display: none;
+  margin: 0 16px 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--purple-pale, #f3f0ff);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text2, #475569);
+}
+.prize-info.open { display: block; animation: prizeOpen 0.2s ease-out; }
+@keyframes prizeOpen { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.prize-row { padding: 5px 0; }
+.prize-row + .prize-row { border-top: 1px solid rgba(124, 58, 237, 0.12); }
+.prize-info a { color: var(--purple, #7c3aed); font-weight: 600; }

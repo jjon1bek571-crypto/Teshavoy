@@ -210,6 +210,12 @@ function setRatingMode(mode) {
   renderRating();
 }
 
+function togglePrizeInfo() {
+  const el = $('prize-info');
+  if (el) el.classList.toggle('open');
+  haptic('light');
+}
+
 function seasonNomi(s) {
   const OYLAR = ['', 'Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
   if (!s) return 'Joriy';
