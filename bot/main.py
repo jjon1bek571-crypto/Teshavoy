@@ -77,16 +77,25 @@ async def record_referral(referrer: str, new_user: str):
     """Yangi user referral orqali kelsa, taklif qiluvchi sonini +1 qiladi.
     Har yangi user FAQAT bir marta; o'z-o'zini taklif hisoblanmaydi."""
     if not KVDB_BUCKET or not KVDB_SECRET:
+        print("[REF] ❌ KVDB sozlanmagan — referral SAQLANMADI. "
+              "Railway env'ga KVDB_BUCKET va KVDB_SECRET qo'shing (Vercel bilan bir xil).")
         return
     if not referrer or not referrer.isdigit() or referrer == new_user:
+        print(f"[REF] ⏭  e'tiborsiz (referrer={referrer!r}, new={new_user!r})")
         return
     async with aiohttp.ClientSession() as session:
         if await _kv_get(session, f"refby:{new_user}"):
+            print(f"[REF] ⏭  {new_user} allaqachon hisoblangan")
             return  # allaqachon hisoblangan
-        await _kv_set(session, f"refby:{new_user}", {"by": referrer})
+        ok1 = await _kv_set(session, f"refby:{new_user}", {"by": referrer})
         rec = await _kv_get(session, f"ref:{referrer}")
         cnt = rec.get("count", 0) if isinstance(rec, dict) else 0
-        await _kv_set(session, f"ref:{referrer}", {"count": cnt + 1})
+        ok2 = await _kv_set(session, f"ref:{referrer}", {"count": cnt + 1})
+        if ok1 and ok2:
+            print(f"[REF] ✅ {referrer} +1 (jami {cnt + 1}) — yangi: {new_user}")
+        else:
+            print(f"[REF] ⚠️  yozishda xato (ok1={ok1}, ok2={ok2}) — "
+                  "KVDB_SECRET noto'g'ri yoki bucket boshqacha bo'lishi mumkin")
 
 
 bot = Bot(token=BOT_TOKEN)
@@ -151,6 +160,28 @@ async def cmd_start(message: types.Message, command: CommandObject = None):
         "<i>Tayyor bo'lsangiz — bosing! 👇</i>"
     )
     await message.answer(text, parse_mode="HTML", reply_markup=mini_app_keyboard())
+
+
+# ── /myref — o'z referral soningni ko'rish (+ KVDB jonli tekshiruvi) ──
+@dp.message(Command("myref"))
+async def cmd_myref(message: types.Message):
+    uid = str(message.from_user.id)
+    if not KVDB_BUCKET or not KVDB_SECRET:
+        await message.answer("⚠️ Referral ombori hozircha sozlanmagan. "
+                             "Tez orada tuzatamiz!")
+        return
+    async with aiohttp.ClientSession() as session:
+        rec = await _kv_get(session, f"ref:{uid}")
+    cnt  = rec.get("count", 0) if isinstance(rec, dict) else 0
+    need = 5
+    if cnt >= need:
+        txt = (f"👥 Siz <b>{cnt}/{need}</b> do'st chaqirdingiz!\n"
+               "✅ Sovg'a qur'asiga kirdingiz 🎉")
+    else:
+        txt = (f"👥 Siz <b>{cnt}/{need}</b> do'st chaqirdingiz.\n"
+               f"Yana <b>{need - cnt}</b> ta chaqiring → sovg'a qur'asiga kirasiz!\n\n"
+               "<i>Havolangizni app ichidagi «Do'st chaqir» bo'limidan oling.</i>")
+    await message.answer(txt, parse_mode="HTML", reply_markup=mini_app_keyboard())
 
 
 # ── /roast ────────────────────────────────────────────────────
@@ -220,7 +251,8 @@ async def cmd_help(message: types.Message):
         "/roast — AI tahlil\n"
         "/iq — IQ Test\n"
         "/daily — Bugungi savol\n"
-        "/games — O'yinlar\n\n"
+        "/games — O'yinlar\n"
+        "/myref — Nechta do'st chaqirganingiz\n\n"
         "Savollar uchun: @miya_exe_support",
         parse_mode="HTML"
     )
@@ -279,6 +311,11 @@ async def any_message(message: types.Message):
 async def main():
     print("MIYA.EXE Bot ishga tushdi!")
     print(f"   Mini App: {MINI_APP_URL}")
+    if KVDB_BUCKET and KVDB_SECRET:
+        print(f"   KVDB: ✅ ON (bucket: {KVDB_BUCKET[:6]}…) — referral ishlaydi")
+    else:
+        print("   KVDB: ❌ OFF — REFERRAL SAQLANMAYDI! Railway → Variables ga "
+              "KVDB_BUCKET va KVDB_SECRET qo'shing (Vercel'dagi bilan AYNAN bir xil).")
     await dp.start_polling(bot)
 
 
